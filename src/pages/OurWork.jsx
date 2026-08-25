@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44client";
+import { publicApi } from "@/api/public";
 import PageHero from "@/components/site/PageHero";
 import WorkGallery from "@/components/work/WorkGallery";
 import CtaBanner from "@/components/home/CtaBanner";
@@ -8,7 +8,7 @@ import CtaBanner from "@/components/home/CtaBanner";
 export default function OurWork() {
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ["projects", "published", 100],
-    queryFn: () => base44.entities.Project.filter({ published: true }, "-project_date", 100),
+    queryFn: () => publicApi.listProjects({ limit: 100 }),
   });
 
   return (

@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44client";
+import { publicApi } from "@/api/public";
 import PageHero from "@/components/site/PageHero";
 import TipCard from "@/components/tips/TipCard";
 import AskTiaanBox from "@/components/tips/AskTiaanBox";
@@ -9,7 +9,7 @@ import Reveal from "@/components/site/Reveal";
 export default function Tips() {
   const { data: tips = [], isLoading } = useQuery({
     queryKey: ["tips", "published", 100],
-    queryFn: () => base44.entities.Tip.filter({ published: true }, "-published_at", 100),
+    queryFn: () => publicApi.listTips({ limit: 100 }),
   });
 
   return (

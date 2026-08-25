@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44client";
+import { publicApi } from "@/api/public";
 import Hero from "@/components/home/Hero";
 import ContactStrip from "@/components/home/ContactStrip";
 import ServicesGrid from "@/components/home/ServicesGrid";
@@ -18,15 +18,15 @@ import Reveal from "@/components/site/Reveal";
 export default function Home() {
   const { data: projects = [] } = useQuery({
     queryKey: ["projects", "published", 50],
-    queryFn: () => base44.entities.Project.filter({ published: true }, "-project_date", 50),
+    queryFn: () => publicApi.listProjects({ limit: 50 }),
   });
   const { data: tips = [] } = useQuery({
     queryKey: ["tips", "published", 20],
-    queryFn: () => base44.entities.Tip.filter({ published: true }, "-published_at", 20),
+    queryFn: () => publicApi.listTips({ limit: 20 }),
   });
   const { data: reviews = [] } = useQuery({
     queryKey: ["reviews", "published"],
-    queryFn: () => base44.entities.Review.filter({ published: true }, "-review_date", 12),
+    queryFn: () => publicApi.listReviews({ limit: 12 }),
   });
 
   const featured = [...projects].sort((a, b) => Number(b.featured) - Number(a.featured)).slice(0, 3);

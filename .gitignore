@@ -49,3 +49,8 @@ ruvector.db-*
 .claude-flow/learning/
 .claude-flow/swarm/
 .claude-flow/backups/
+
+# Private migration data (contains customer info)
+migrations/base44-export/
+*.private.json
+*.customer-data.*

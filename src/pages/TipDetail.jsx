@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Clock, Calendar, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
-import { base44 } from "@/api/base44client";
+import { publicApi } from "@/api/public";
 import { Image } from "@/components/ui/image";
 import AskTiaanBox from "@/components/tips/AskTiaanBox";
 
@@ -11,7 +11,7 @@ export default function TipDetail() {
   const { slug } = useParams();
   const { data: tips, isLoading } = useQuery({
     queryKey: ["tips", "all"],
-    queryFn: () => base44.entities.Tip.filter({ published: true }, "-published_at", 100),
+    queryFn: () => publicApi.listTips({ limit: 100 }),
   });
 
   if (isLoading) {
