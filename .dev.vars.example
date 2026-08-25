@@ -1,0 +1,7 @@
+# Copy to .dev.vars for local Pages Functions development.
+# Never commit .dev.vars or real values.
+TURNSTILE_SECRET_KEY=
+TURNSTILE_ALLOWED_HOSTNAMES=localhost
+ACCESS_TEAM_DOMAIN=
+ACCESS_AUD=
+ADMIN_EMAILS=

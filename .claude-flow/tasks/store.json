@@ -1,0 +1,58 @@
+{
+  "tasks": {
+    "task-1787693397508-kvka6v": {
+      "taskId": "task-1787693397508-kvka6v",
+      "type": "testing",
+      "description": "Independent baseline QA lint Git and deployment verification matrix",
+      "priority": "high",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "tiaans-aircon",
+        "qa",
+        "deployment"
+      ],
+      "createdAt": "2026-08-25T21:29:57.508Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1787693407856-q3vq6q": {
+      "taskId": "task-1787693407856-q3vq6q",
+      "type": "research",
+      "description": "Frontend Base44 dependency migration audit; preserve UI and define compatibility API sequence",
+      "priority": "high",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "tiaans-aircon",
+        "frontend",
+        "base44",
+        "migration"
+      ],
+      "createdAt": "2026-08-25T21:30:07.856Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1787693412050-z9o3n9": {
+      "taskId": "task-1787693412050-z9o3n9",
+      "type": "security",
+      "description": "Cloudflare Pages Functions D1 R2 Access backend and security design",
+      "priority": "high",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "tiaans-aircon",
+        "cloudflare",
+        "backend",
+        "security"
+      ],
+      "createdAt": "2026-08-25T21:30:12.050Z",
+      "startedAt": null,
+      "completedAt": null
+    }
+  },
+  "version": "3.0.0"
+}
