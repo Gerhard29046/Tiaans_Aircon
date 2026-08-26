@@ -12,10 +12,11 @@
 - Public and admin APIs use Pages Functions and D1.
 - Contact form uses the Cloudflare enquiry API and Turnstile lifecycle.
 - Original ten website photographs copied unchanged into Pages static assets.
+- External image transformation and fallback dependencies removed; runtime media is Cloudflare-only.
 - Legacy SDK, build plugin, auth code, project config, entity definitions, and migration utilities removed.
 - Missing R2 bindings now fail clearly with `503 storage_not_configured`.
 - Build, lint, typecheck, Cloudflare tests (8/8), binding type check, and local public-route smoke tests pass.
-- Production deployment `53b46aa` is live; all public/direct routes and APIs pass, and all ten image checksums match.
+- Production deployment is live; all public/direct routes and APIs pass, and all ten image checksums match.
 
 ## Current counts
 

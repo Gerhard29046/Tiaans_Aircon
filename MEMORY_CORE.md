@@ -16,7 +16,7 @@ The owner explicitly accepted a fresh Cloudflare data store with zero historical
 - Pages Functions expose public content APIs, contact submission, protected admin CRUD, and media endpoints.
 - Production D1 `tiaans-aircon` uses database ID `04b9c5d5-5d4c-4f4e-8b9e-ebec03721cf0` in WEUR.
 - D1 schema migration `0001_initial.sql` is applied. Projects, tips, reviews, enquiries, and media objects currently contain zero rows by design.
-- Ten original website photographs are bundled byte-for-byte under `public/media/*.jpg` and served by Pages.
+- Ten original website photographs are bundled byte-for-byte under `public/media/*.jpg` and served by Pages. The image component has no external media fallback.
 - Future admin uploads use `PUBLIC_MEDIA`; optional enquiry attachments use `PRIVATE_ATTACHMENTS`. Missing R2 bindings return explicit `503 storage_not_configured` responses.
 - Contact submissions use D1 and server-side Turnstile. Submissions without files do not require R2.
 - Admin authorization uses Cloudflare Access JWT verification plus the application-token type and approved-email allowlist.
@@ -61,4 +61,4 @@ Never place passwords, tokens, API keys, secret values, private keys, or custome
 
 ## Last Updated
 
-2026-08-26 - owner accepted a fresh empty D1; retired runtime/tooling removed; original photographs moved to Pages assets; commit `53b46aa` deployed successfully to production with public routes/APIs healthy and checksums verified.
+2026-08-26 - owner accepted a fresh empty D1; retired runtime/tooling removed; original photographs moved to Pages assets; external media fallbacks removed; production public routes/APIs and asset checksums verified.
