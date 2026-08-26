@@ -2,7 +2,7 @@
 
 **Status date:** 2026-08-26
 
-**Estimated completion:** 85%
+**Estimated completion:** 90%
 
 ## Completed
 
@@ -15,6 +15,7 @@
 - Legacy SDK, build plugin, auth code, project config, entity definitions, and migration utilities removed.
 - Missing R2 bindings now fail clearly with `503 storage_not_configured`.
 - Build, lint, typecheck, Cloudflare tests (8/8), binding type check, and local public-route smoke tests pass.
+- Production deployment `53b46aa` is live; all public/direct routes and APIs pass, and all ten image checksums match.
 
 ## Current counts
 
@@ -34,7 +35,6 @@ These zero D1 counts are the accepted starting state, not a failed migration.
 - Configure Turnstile sitekey, hostname variable, and Pages secret.
 - Configure Cloudflare Access and approved administrator identity.
 - Enable R2 and create the public/private buckets for upload and attachment features.
-- Deploy a successful production build; the existing historical deployment returns HTTP 522.
 - Run full production public/admin/contact/mobile QA.
 
 ## Safety

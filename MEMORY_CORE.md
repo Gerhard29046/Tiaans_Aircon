@@ -6,7 +6,7 @@ Preserve the current Tiaan's Aircon website design, branding, wording, routes, b
 
 ## Current Milestone
 
-**M4 - legacy runtime removed; Cloudflare production security and optional R2 setup remain. Estimated completion: 85%.**
+**M4 - Cloudflare-only production deployed; security and optional R2 setup remain. Estimated completion: 90%.**
 
 The owner explicitly accepted a fresh Cloudflare data store with zero historical dynamic records. No legacy account or data export is required.
 
@@ -35,11 +35,10 @@ The owner explicitly accepted a fresh Cloudflare data store with zero historical
 - Set `VITE_TURNSTILE_SITE_KEY`, `TURNSTILE_ALLOWED_HOSTNAMES`, and Pages secret `TURNSTILE_SECRET_KEY`.
 - Configure Access for `/admin*` and `/api/admin*`, allow only `gerhard.ark.of.war@gmail.com`, then set `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, and `ADMIN_EMAILS`.
 - Enable R2 and create the two named buckets when admin uploads and enquiry attachments are required.
-- Deploy the current commit and complete independent production QA. The historical Pages deployment currently returns HTTP 522.
+- Complete independent production QA after Access and Turnstile are configured.
 
 ## Known Issues
 
-- **CRITICAL:** current production URL returns HTTP 522 because its only recorded deployment failed.
 - **BLOCKED:** Access and Turnstile dashboard resources/variables/secrets are not configured.
 - **BLOCKED:** R2 activation is required for upload/attachment parity, but not for public Pages assets or text-only enquiries.
 - **MEDIUM:** Workers-runtime integration coverage for real Access, D1/R2 compensation, admin CRUD, and private attachments remains incomplete.
@@ -62,4 +61,4 @@ Never place passwords, tokens, API keys, secret values, private keys, or custome
 
 ## Last Updated
 
-2026-08-26 - owner accepted a fresh empty D1; legacy SDK/plugin/auth/config/migration tooling removed; original photographs moved to Pages assets; Cloudflare-only code path established.
+2026-08-26 - owner accepted a fresh empty D1; retired runtime/tooling removed; original photographs moved to Pages assets; commit `53b46aa` deployed successfully to production with public routes/APIs healthy and checksums verified.

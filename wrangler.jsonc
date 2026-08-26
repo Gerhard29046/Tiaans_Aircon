@@ -24,7 +24,9 @@
   //   }
   // ],
   "vars": {
-    "ENVIRONMENT": "production"
+    "ENVIRONMENT": "production",
+    "TURNSTILE_ALLOWED_HOSTNAMES": "tiaans-aircon.pages.dev",
+    "ADMIN_EMAILS": "gerhard.ark.of.war@gmail.com"
   },
   "observability": {
     "enabled": true
