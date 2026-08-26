@@ -11,7 +11,6 @@ export default [
       ".claude/**",
       ".claude-flow/**",
       ".swarm/**",
-      "base44/.types/**",
       "dist/**",
       "node_modules/**",
     ],

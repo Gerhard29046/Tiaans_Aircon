@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { mapProject, mapRow } from "../functions/_shared/db.js";
-import { formDataWithLimit, HttpError, parseLimit } from "../functions/_shared/http.js";
+import { formDataWithLimit, HttpError, parseLimit, requireBinding } from "../functions/_shared/http.js";
 import { parseEnquiry, validateImage } from "../functions/_shared/validation.js";
 import { verifyTurnstile } from "../functions/_shared/turnstile.js";
 
@@ -10,7 +10,16 @@ test("parseLimit enforces the public cap", () => {
   assert.throws(() => parseLimit(new Request("https://example.test/api?limit=101"), 10), HttpError);
 });
 
-test("D1 rows map booleans and Base44-compatible dates", () => {
+test("optional file storage bindings fail with an explicit service error", () => {
+  const bucket = { get() {} };
+  assert.equal(requireBinding({ PUBLIC_MEDIA: bucket }, "PUBLIC_MEDIA"), bucket);
+  assert.throws(
+    () => requireBinding({}, "PUBLIC_MEDIA"),
+    (error) => error instanceof HttpError && error.status === 503 && error.code === "storage_not_configured",
+  );
+});
+
+test("D1 rows map booleans and legacy-compatible dates", () => {
   assert.deepEqual(mapRow({ id: "1", published: 1, featured: 0, created_at: "2026-01-01T00:00:00Z" }), {
     id: "1", published: true, featured: false, created_at: "2026-01-01T00:00:00Z", created_date: "2026-01-01T00:00:00Z",
   });

@@ -1,6 +1,7 @@
 import React from "react";
 import Reveal from "@/components/site/Reveal";
 
+/** @param {{eyebrow?: React.ReactNode, title: React.ReactNode, sub?: React.ReactNode, light?: boolean, center?: boolean, children?: React.ReactNode}} props */
 export default function SectionHeading({ eyebrow, title, sub, light = false, center = false, children }) {
   return (
     <Reveal className={`${center ? "text-center mx-auto" : ""} max-w-3xl`}>

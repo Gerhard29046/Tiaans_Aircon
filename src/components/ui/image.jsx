@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as React from "react"
 import { useSize } from "@/hooks/use-size"
 import { cn } from "@/lib/utils"
@@ -109,12 +110,25 @@ ResponsiveImage.displayName = "ResponsiveImage"
 
 /**
  * Image with built-in Wix Media Platform support: canonical public images on
- * media.base44.com and static.wixstatic.com/media are resized to the rendered
+ * static.wixstatic.com/media are resized to the rendered
  * container per device pixel ratio and re-encoded to WebP; `fittingType="fill"`
  * crops server-side, optionally anchored at a focal point. Other URLs render
  * as a plain <img>. Failed transforms retry the original URL; only a broken
  * original swaps to the generic fallback image.
  */
+/**
+ * @typedef {React.ImgHTMLAttributes<HTMLImageElement> & {
+ *   src?: string,
+ *   fittingType?: "fill" | "fit",
+ *   originWidth?: number,
+ *   originHeight?: number,
+ *   focalPointX?: number,
+ *   focalPointY?: number,
+ *   quality?: number,
+ * }} ImageProps
+ */
+
+/** @type {React.ForwardRefExoticComponent<ImageProps & React.RefAttributes<HTMLImageElement>>} */
 const Image = React.forwardRef(
   (
     {

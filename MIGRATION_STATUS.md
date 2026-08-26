@@ -1,53 +1,44 @@
-# Tiaan's Aircon - Cloudflare Migration Status
+# Tiaan's Aircon - Cloudflare Cutover Status
 
 **Status date:** 2026-08-26
 
-**Estimated completion:** 72%
+**Estimated completion:** 85%
 
-**Phase:** authenticated Cloudflare foundation; live data/R2/security setup blocked
+## Completed
 
-## Completed and verified
+- Cloudflare account, Pages project, production URL, D1, and GitHub repository verified.
+- Production D1 created and schema applied.
+- Fresh empty data model explicitly accepted by the owner.
+- Public and admin APIs use Pages Functions and D1.
+- Contact form uses the Cloudflare enquiry API and Turnstile lifecycle.
+- Original ten website photographs copied unchanged into Pages static assets.
+- Legacy SDK, build plugin, auth code, project config, entity definitions, and migration utilities removed.
+- Missing R2 bindings now fail clearly with `503 storage_not_configured`.
+- Build, lint, typecheck, Cloudflare tests (8/8), binding type check, and local public-route smoke tests pass.
 
-- Public content and admin UI use same-origin Cloudflare API facades.
-- Production Cloudflare account, Pages project/domain, D1, GitHub owner identity, and Base44 CLI identity are verified.
-- Production D1 was created, schema-applied, and independently verified empty.
-- ContactForm targets the Cloudflare API and renders Turnstile when a site key is supplied.
-- Access token validation now requires an application token type.
-- Exporter is repaired; the unsafe importer was replaced with a fail-closed guard.
-- Build and lint pass. Cloudflare tests pass 7/7. Local Pages smoke passes.
-- Existing commits through `4d0aef5` were pushed normally to `Gerhard29046/Tiaans_Aircon`.
-
-## Exact current counts
+## Current counts
 
 ```text
-Projects: Base44 unavailable -> D1 0
-Tips: Base44 unavailable -> D1 0
-Reviews: Base44 unavailable -> D1 0
-Enquiries: Base44 unavailable -> D1 0
-Media objects: Base44 unavailable -> R2 unavailable
+Projects: D1 0
+Tips: D1 0
+Reviews: D1 0
+Enquiries: D1 0
+Media metadata: D1 0
+Bundled public images: Pages 10
 ```
 
-These are not parity results. Migration completion remains false.
+These zero D1 counts are the accepted starting state, not a failed migration.
 
-## Blocked
+## Remaining
 
-- Base44 identity `gerhardvanwijk@gmail.com` cannot access app `6a8de72bb83510043a8ec7b0`.
-- R2 is not enabled on Cloudflare account `72e8ade6697337b0bc2f2746b5570ff6`; both buckets are blocked.
-- Turnstile widget/sitekey/secret and Cloudflare Access application/policy are unconfigured.
-- Contact submission is unavailable until Turnstile and private R2 are live.
-- Ten static Base44 media URLs and dynamic entity media remain.
-- The only Pages production deployment failed; the live domain currently returns HTTP 522.
+- Configure Turnstile sitekey, hostname variable, and Pages secret.
+- Configure Cloudflare Access and approved administrator identity.
+- Enable R2 and create the public/private buckets for upload and attachment features.
+- Deploy a successful production build; the existing historical deployment returns HTTP 522.
+- Run full production public/admin/contact/mobile QA.
 
-## Do not do yet
+## Safety
 
-- Do not populate production D1 until the source export and media validation pass.
-- Do not remove Base44 SDK/plugin/auth/media until live parity and production QA pass.
-- Do not force-push or deploy an empty-data cutover.
-
-## Exact user actions required
-
-1. Enable R2 for Cloudflare account `72e8ade6697337b0bc2f2746b5570ff6` in the Dashboard.
-2. Grant `gerhardvanwijk@gmail.com` owner/editor access to Base44 app `6a8de72bb83510043a8ec7b0`, or authenticate Base44 CLI as an identity that already has access.
-3. Configure Turnstile and Pages Access through the dashboard, or provide an approved non-project Wrangler/API-token workflow so Codex can perform secret-safe setup.
-
-See `MEMORY_CORE.md` for the architecture, risks, and ordered continuation plan.
+- Never paste or commit the Turnstile secret.
+- Never expose private enquiry attachments publicly.
+- Preserve normal Git history; do not force-push.

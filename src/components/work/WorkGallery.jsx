@@ -6,6 +6,7 @@ import Reveal from "@/components/site/Reveal";
 const FILTERS = ["All", "Installations", "Repairs", "Servicing", "Car Aircon"];
 const MAP = { Installations: "Installation", Repairs: "Repair", Servicing: "Service", "Car Aircon": "Car Aircon" };
 
+/** @param {{projects?: Array<Record<string, any>>, limit?: number}} props */
 export default function WorkGallery({ projects = [], limit }) {
   const [filter, setFilter] = useState("All");
   const [active, setActive] = useState(null);

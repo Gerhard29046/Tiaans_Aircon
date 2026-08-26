@@ -1,10 +1,11 @@
-import { formDataWithLimit, HttpError, json, withErrors } from "../../../_shared/http.js";
+import { formDataWithLimit, HttpError, json, requireBinding, withErrors } from "../../../_shared/http.js";
 import { validateImage } from "../../../_shared/validation.js";
 
 const MAX_FILE_BYTES = 12 * 1024 * 1024;
 const MAX_REQUEST_BYTES = 13 * 1024 * 1024;
 
 export const onRequestPost = withErrors(async ({ request, env, data }, requestId) => {
+  const publicMedia = requireBinding(env, "PUBLIC_MEDIA");
   if (!request.headers.get("Content-Type")?.startsWith("multipart/form-data")) throw new HttpError(415, "unsupported_media_type", "Use multipart form data.");
   const form = await formDataWithLimit(request, MAX_REQUEST_BYTES);
   const file = form.get("file");
@@ -12,7 +13,7 @@ export const onRequestPost = withErrors(async ({ request, env, data }, requestId
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   const key = `content/${now.slice(0, 10)}/${id}.${signature.ext}`;
-  await env.PUBLIC_MEDIA.put(key, await file.arrayBuffer(), { httpMetadata: { contentType: signature.type, cacheControl: "public, max-age=31536000, immutable" }, customMetadata: { mediaId: id } });
+  await publicMedia.put(key, await file.arrayBuffer(), { httpMetadata: { contentType: signature.type, cacheControl: "public, max-age=31536000, immutable" }, customMetadata: { mediaId: id } });
   try {
     await env.DB.batch([
       env.DB.prepare(`INSERT INTO media_objects
@@ -25,7 +26,7 @@ export const onRequestPost = withErrors(async ({ request, env, data }, requestId
         .bind(crypto.randomUUID(), data.admin.email, id, requestId, JSON.stringify({ fields: ["content_type", "byte_size"] }), now),
     ]);
   } catch (error) {
-    await env.PUBLIC_MEDIA.delete(key);
+    await publicMedia.delete(key);
     throw error;
   }
   return json({ id, url: `/api/public/media/${id}` }, 201, requestId);

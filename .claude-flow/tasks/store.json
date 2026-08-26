@@ -20,7 +20,7 @@
     "task-1787693407856-q3vq6q": {
       "taskId": "task-1787693407856-q3vq6q",
       "type": "research",
-      "description": "Frontend Base44 dependency migration audit; preserve UI and define compatibility API sequence",
+      "description": "Frontend legacy dependency migration audit; preserve UI and define compatibility API sequence",
       "priority": "high",
       "status": "pending",
       "progress": 0,
@@ -28,7 +28,7 @@
       "tags": [
         "tiaans-aircon",
         "frontend",
-        "base44",
+        "legacy-platform",
         "migration"
       ],
       "createdAt": "2026-08-25T21:30:07.856Z",
@@ -50,6 +50,71 @@
         "security"
       ],
       "createdAt": "2026-08-25T21:30:12.050Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1787758212669-x7qo67": {
+      "taskId": "task-1787758212669-x7qo67",
+      "type": "implementation",
+      "description": "Data migration: establish the accepted fresh D1/R2 state",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [],
+      "createdAt": "2026-08-26T15:30:12.669Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1787758216120-t21mfa": {
+      "taskId": "task-1787758216120-t21mfa",
+      "type": "implementation",
+      "description": "Cloudflare backend: verify and configure Pages D1 and R2 production resources",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [],
+      "createdAt": "2026-08-26T15:30:16.120Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1787758219702-g9qeyl": {
+      "taskId": "task-1787758219702-g9qeyl",
+      "type": "security",
+      "description": "Security and auth: configure and verify Turnstile and Cloudflare Access",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [],
+      "createdAt": "2026-08-26T15:30:19.702Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1787758223080-cfh4a6": {
+      "taskId": "task-1787758223080-cfh4a6",
+      "type": "testing",
+      "description": "QA: independently verify migration stages and production behavior",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [],
+      "createdAt": "2026-08-26T15:30:23.080Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1787758227018-50qlj0": {
+      "taskId": "task-1787758227018-50qlj0",
+      "type": "implementation",
+      "description": "Git and deployment: preserve history push normally deploy and verify production",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [],
+      "createdAt": "2026-08-26T15:30:27.018Z",
       "startedAt": null,
       "completedAt": null
     }

@@ -26,6 +26,7 @@ export function Toggle({ label, checked, onChange }) {
   );
 }
 
+/** @param {{children: React.ReactNode, onClick?: React.MouseEventHandler<HTMLButtonElement>, type?: "button" | "submit" | "reset", variant?: "primary" | "ghost" | "danger", className?: string}} props */
 export function AdminButton({ children, onClick, type = "button", variant = "primary", className = "" }) {
   const styles = {
     primary: "bg-[#2D8CCB] text-white hover:bg-[#6DD5F7] hover:text-[#0A2948]",

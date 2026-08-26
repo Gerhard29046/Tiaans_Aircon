@@ -2,6 +2,7 @@ import React from "react";
 import { MessageCircle } from "lucide-react";
 import { waLink } from "@/lib/brand";
 
+/** @param {{topic?: string}} props */
 export default function AskTiaanBox({ topic }) {
   return (
     <div className="mt-14 p-8 sm:p-10 rounded-[2rem] bg-[#0A2948] text-white">

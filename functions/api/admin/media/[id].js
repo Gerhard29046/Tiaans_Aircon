@@ -1,4 +1,4 @@
-import { HttpError, json, withErrors } from "../../../_shared/http.js";
+import { HttpError, json, requireBinding, withErrors } from "../../../_shared/http.js";
 
 export const onRequestDelete = withErrors(async ({ env, data, params }, requestId) => {
   const id = String(params.id);
@@ -11,7 +11,7 @@ export const onRequestDelete = withErrors(async ({ env, data, params }, requestI
   if (!row) throw new HttpError(404, "not_found", "Media not found.");
   await env.DB.prepare("UPDATE media_objects SET state = 'deleting', updated_at = ? WHERE id = ?").bind(new Date().toISOString(), id).run();
   try {
-    await env.PUBLIC_MEDIA.delete(row.object_key);
+    await requireBinding(env, "PUBLIC_MEDIA").delete(row.object_key);
   } catch (error) {
     await env.DB.prepare("UPDATE media_objects SET state = 'delete_failed', updated_at = ? WHERE id = ?").bind(new Date().toISOString(), id).run();
     throw error;

@@ -1,4 +1,4 @@
-import { assertSameOrigin, formDataWithLimit, HttpError, json, withErrors } from "../_shared/http.js";
+import { assertSameOrigin, formDataWithLimit, HttpError, json, requireBinding, withErrors } from "../_shared/http.js";
 import { verifyTurnstile } from "../_shared/turnstile.js";
 import { parseEnquiry, validateImage } from "../_shared/validation.js";
 
@@ -25,10 +25,11 @@ export const onRequestPost = withErrors(async ({ request, env }, requestId) => {
   const file = form.get("attachment");
   let media = null;
   if (file instanceof File && file.size > 0) {
+    const privateAttachments = requireBinding(env, "PRIVATE_ATTACHMENTS");
     const signature = await validateImage(file, MAX_FILE_BYTES);
     const id = crypto.randomUUID();
     media = { id, key: `enquiries/${now.slice(0, 10)}/${id}.${signature.ext}`, type: signature.type, size: file.size, name: file.name.slice(0, 255) };
-    await env.PRIVATE_ATTACHMENTS.put(media.key, await file.arrayBuffer(), { httpMetadata: { contentType: media.type }, customMetadata: { mediaId: id } });
+    await privateAttachments.put(media.key, await file.arrayBuffer(), { httpMetadata: { contentType: media.type }, customMetadata: { mediaId: id } });
   }
 
   try {
@@ -45,7 +46,7 @@ export const onRequestPost = withErrors(async ({ request, env }, requestId) => {
       .bind(enquiryId, values.name, values.phone, values.email, values.service, values.customer_type, values.message, media?.id || null, now, now));
     await env.DB.batch(statements);
   } catch (error) {
-    if (media) await env.PRIVATE_ATTACHMENTS.delete(media.key);
+    if (media) await requireBinding(env, "PRIVATE_ATTACHMENTS").delete(media.key);
     throw error;
   }
   return json({ id: enquiryId }, 201, requestId);

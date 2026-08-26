@@ -48,6 +48,12 @@ export function assertSameOrigin(request) {
   }
 }
 
+export function requireBinding(env, name) {
+  const binding = env[name];
+  if (!binding) throw new HttpError(503, "storage_not_configured", "File storage is not configured yet.");
+  return binding;
+}
+
 export async function formDataWithLimit(request, maximumBytes) {
   const declared = request.headers.get("Content-Length");
   if (declared !== null) {

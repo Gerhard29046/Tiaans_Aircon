@@ -29,7 +29,6 @@ dist-ssr
 
 .env
 .vite
-base44/.app.jsonc
 
 # Ruflo local secrets and runtime data
 .env.local
@@ -51,7 +50,6 @@ ruvector.db-*
 .claude-flow/agents/
 .claude-flow/backups/
 
-# Private migration data (contains customer info)
-migrations/base44-export/
+# Private customer data
 *.private.json
 *.customer-data.*

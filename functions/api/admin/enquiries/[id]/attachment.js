@@ -1,4 +1,4 @@
-import { HttpError, withErrors } from "../../../../_shared/http.js";
+import { HttpError, requireBinding, withErrors } from "../../../../_shared/http.js";
 
 export const onRequestGet = withErrors(async ({ env, params }) => {
   const row = await env.DB.prepare(`SELECT m.object_key, m.content_type, m.original_name
@@ -6,7 +6,7 @@ export const onRequestGet = withErrors(async ({ env, params }) => {
     WHERE e.id = ? AND m.bucket_kind = 'private_enquiry' AND m.state = 'ready'`)
     .bind(String(params.id)).first();
   if (!row) throw new HttpError(404, "not_found", "Attachment not found.");
-  const object = await env.PRIVATE_ATTACHMENTS.get(row.object_key);
+  const object = await requireBinding(env, "PRIVATE_ATTACHMENTS").get(row.object_key);
   if (!object) throw new HttpError(404, "not_found", "Attachment not found.");
   const headers = new Headers();
   object.writeHttpMetadata(headers);
