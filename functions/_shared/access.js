@@ -27,6 +27,9 @@ export async function verifyAdmin(request, env) {
   } catch {
     throw new HttpError(401, "invalid_access_token", "Administrator authentication is invalid or expired.");
   }
+  if (payload.type !== "app") {
+    throw new HttpError(401, "invalid_access_token", "Administrator authentication is invalid or expired.");
+  }
 
   const email = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "";
   const allowlist = new Set(required(env, "ADMIN_EMAILS").split(",").map((item) => item.trim().toLowerCase()).filter(Boolean));

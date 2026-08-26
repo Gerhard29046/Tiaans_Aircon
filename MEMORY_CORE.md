@@ -1,100 +1,91 @@
-# Tiaan's Aircon — Engineering Memory Core
+# Tiaan's Aircon - Engineering Memory Core
 
 ## Project Purpose
 
-Public website and content-management interface for Tiaan's Aircon. Preserve the current design, wording, branding, page structure, and business details while replacing Base44 infrastructure with Cloudflare.
+Public website and content-management interface for Tiaan's Aircon. Preserve the design, wording, branding, page structure, business details, and imagery while replacing Base44 infrastructure with Cloudflare.
 
 ## Current Milestone
 
-**M3 — local Cloudflare frontend/admin cutover; live data and infrastructure blocked. Estimated migration: 65%.**
+**M3 - authenticated Cloudflare foundation and local contact cutover; live data/R2/security setup blocked. Estimated migration: 72%.**
 
-The public content pages and admin UI now target same-origin Cloudflare API facades. Base44 is no longer a global rendering/authentication dependency. Do not remove the remaining Base44 contact/auth/media/build code until live data/media parity, Turnstile, Cloudflare Access, and production bindings are verified.
+Public content and admin code target same-origin Cloudflare APIs. Do not remove the remaining Base44 auth/media/build code until data/media parity, Turnstile, Access, and production behavior are verified.
 
-## Verified Baseline — 2026-08-26
+## Verified Baseline - 2026-08-26
 
-- `npm.cmd run build`: PASS; 627.02 kB main JS chunk warning remains.
-- `npm.cmd run lint`: PASS.
-- `npm.cmd run typecheck`: FAIL with the existing 105 JavaScript diagnostics; no broad TypeScript conversion is planned.
-- `npm.cmd run test:cloudflare`: PASS, 5/5 contract tests.
-- Local Pages smoke test with simulated `DB`, `PUBLIC_MEDIA`, and `PRIVATE_ATTACHMENTS`: `/`, `/tips/example`, and public project/tip/review APIs return 200; anonymous admin session returns 401.
-- Git branch `master` is three commits ahead of `origin/master`; migration work is committed locally. GitHub tokens for both configured identities are invalid, so push is blocked. Only RuFlo policy audit state remains modified outside the application commit.
+- Build: PASS. Lint: PASS. Cloudflare contracts: PASS, 7/7.
+- Typecheck retains the known 105-diagnostic legacy baseline.
+- Local Pages smoke with simulated D1/R2: `/`, `/tips/example`, `/contact`, and public project/tip/review APIs return 200; anonymous admin session returns 401.
+- GitHub is authenticated as `Gerhard29046`. Commits through `4d0aef5` were pushed normally to `origin/master`; history was not rewritten.
 
 ## Current Architecture
 
 - React 18 SPA, React Router 6, Vite 6, Tailwind 3, TanStack Query.
-- Public `Home`, `OurWork`, `Tips`, `TipDetail`, and review reads use `src/api/public.js`; tip detail uses its dedicated endpoint.
-- `App.jsx` no longer wraps public routes in Base44 `AuthProvider`; the 404 page no longer calls Base44 auth.
-- Admin session, all four content managers, enquiry updates, and image uploads use `src/api/admin.js`.
-- Admin project/tip media editors preserve media IDs. Projects support ordered gallery replacement through `image_ids` while public responses retain URL fields for visual compatibility.
+- Public project, tip, tip-detail, and review reads use `src/api/public.js`.
+- Admin session, content managers, enquiry updates, media uploads, and project galleries use `src/api/admin.js`.
 - Pages Functions use D1, separate public/private R2 bindings, Cloudflare Access JWT verification, and server-side Turnstile.
-- `wrangler.jsonc` intentionally has no live D1/R2 IDs. `wrangler.local.jsonc` exists only for local D1 migration commands; Pages local development uses CLI-only simulated bindings.
+- Production `wrangler.jsonc` contains the verified D1 binding. R2 bindings remain commented until R2 is enabled. `wrangler.local.jsonc` is the local D1 config.
+- `ContactForm.jsx` now submits to the Cloudflare enquiry API and has an explicit Turnstile lifecycle. It fails closed without `VITE_TURNSTILE_SITE_KEY`.
 
 ## Security and Consistency Controls
 
 - Public reads enforce `published = 1` server-side.
-- Admin middleware verifies Access JWT signature, issuer, audience, expiry, and a confirmed email allowlist; mutations require exact same-origin requests.
-- Access JWKS clients are cached by issuer.
-- Admin content payloads enforce field allowlists, types, enums, lengths, boolean types, rating bounds, and ready public-media references.
-- Project gallery writes and audit entries are included in D1 batches; enquiry updates and audits are atomic.
-- Public/admin multipart bodies are byte-limited even without a valid `Content-Length`.
-- Enquiries reject duplicate/unknown fields, File values in text fields, invalid email syntax, invalid enums, and invalid image signatures.
-- Turnstile validation checks success, exact `contact_enquiry` action, allowed hostname, has a 10-second timeout, and fails closed on upstream errors.
+- Admin middleware verifies Access JWT signature, issuer, audience, expiry, application-token type, and normalized email allowlist. Mutations require exact same-origin requests.
+- Admin payload/media validation, D1 batches, enquiry/audit atomicity, bounded multipart parsing, image-signature checks, and R2 cleanup compensation are implemented.
+- Turnstile validation requires success, action `contact_enquiry`, an allowed hostname, bounded token size, and a 10-second timeout; upstream errors fail closed.
 
 ## Live Base44 Status and Blocker
 
-- Base44 CLI is authenticated as `gerhardvanwijk@gmail.com`.
-- Deno 2.9.5 is installed, so `base44 exec` is operational.
-- A read-only privileged production probe against confirmed app ID `6a8de72bb83510043a8ec7b0` was rejected: the authenticated identity does not have permission to access the app.
-- Required user action: grant that Base44 identity owner/editor access to the app, or authenticate the CLI as an identity that already has access.
+- CLI identity: `gerhardvanwijk@gmail.com`; Deno 2.9.5 is installed.
+- App-specific privileged production access to `6a8de72bb83510043a8ec7b0` still fails during app-token exchange. Authentication alone did not grant app permission.
+- Required user action: grant this identity owner/editor access or authenticate the CLI as an identity that already has access.
 - No records or private data were exported. `migrations/base44-export/` remains ignored and empty.
-- Existing `migrations/export-base44.js` is only a manual template. Existing `migrations/import-base44.js` is unsafe/nonfunctional: CommonJS in an ESM package, wrong source fields/enums/dates, wrong D1 columns, incomplete table coverage, and no transactional/idempotent import. Do not run either as a production migration.
+- `migrations/export-base44.js` is repaired as a fixed-app, bounded, paginated, duplicate-checking, atomic ESM exporter that prints only counts and its private output location.
+- `migrations/import-base44.js` intentionally fails closed. Build the deterministic media-aware importer only after the real export is validated.
 
-## Live Cloudflare Status and Blocker
+## Live Cloudflare Status and Blockers
 
-- Wrangler 4.126.0 is installed, but `wrangler whoami` reports an expired token and cannot refresh non-interactively.
-- No Pages project, D1 database, R2 bucket, Access application, Turnstile widget, account ID, audience, or production binding was verified in this session.
-- Required user action: run `npx.cmd wrangler login`, then confirm the selected account is the intended account before any resource creation.
-- Never guess database IDs or deploy while account identity is ambiguous.
+- Wrangler identity: `gerhard.ark.of.war@gmail.com`; sole account ID `72e8ade6697337b0bc2f2746b5570ff6`.
+- Pages project/domain: `tiaans-aircon` / `tiaans-aircon.pages.dev`.
+- The only recorded production deployment, source `7ea47bd`, failed. Live probes currently return HTTP 522.
+- Production D1: `tiaans-aircon`, ID `04b9c5d5-5d4c-4f4e-8b9e-ebec03721cf0`, WEUR. `0001_initial.sql` is applied. Projects 0, Tips 0, Reviews 0, Enquiries 0, Media objects 0.
+- R2 is not enabled (Cloudflare API code 10042). The owner must activate R2 before either required bucket can be created.
+- Access and Turnstile resources/vars/secrets are not configured. The Turnstile skill forbids secret-bearing commands through project-local/npx Wrangler; use a user-approved global Wrangler or dashboard-managed secret flow.
 
 ## Remaining Base44 Runtime
 
-- `ContactForm.jsx` still uploads/creates enquiries through Base44 because no Turnstile widget/sitekey/secret has been configured.
-- Base44 auth context and obsolete login/register/reset/OAuth files remain in source but are no longer in the active route tree.
-- Base44 SDK/client, Vite plugin, app config/entity definitions, ten static `media.base44.com` URLs, and Base44 favicon remain.
-- Remove these only after contact, Access, data, and media parity are live and verified.
+- Obsolete Base44 auth pages/context, SDK client, Vite plugin, app config/entity definitions, ten static `media.base44.com` URLs, and the Base44 favicon remain.
+- Contact no longer calls Base44, but it is not production-operational until Turnstile and private R2 are configured.
+- Remove Base44 only after live data, media, contact, admin, and rollback parity pass.
 
 ## Known Issues / Risks
 
-- **BLOCKED:** Base44 app access prevents export and parity verification.
-- **BLOCKED:** Cloudflare authentication is expired; live targets/resources cannot be verified or created.
-- **HIGH:** production data/media have not been exported, imported, or parity-checked.
-- **HIGH:** contact remains Base44-backed; Cloudflare enquiry endpoint cannot be cut over until Turnstile is configured and end-to-end tested.
-- **HIGH:** admin Cloudflare code is locally compiled but cannot be exercised end-to-end without Access JWT and live/simulated admin fixtures.
-- **HIGH:** export/import utilities must be replaced before any D1 import.
-- **MEDIUM:** public-media deletion still needs a recoverable tombstone/reconciliation workflow.
-- **MEDIUM:** Workers-runtime integration tests for Access, Turnstile, D1 rollback, R2 cleanup, admin CRUD, and private attachments are missing.
-- **MEDIUM:** typecheck has 105 legacy diagnostics; lint coverage remains incomplete.
-- **LOW:** main bundle exceeds Vite's 500 kB warning threshold.
-- **LOW:** `index.html` still references a missing `/manifest.json` and Base44 favicon.
+- **BLOCKED:** Base44 app authorization prevents export and exact source counts.
+- **BLOCKED:** R2 activation prevents both required buckets and all media migration.
+- **BLOCKED:** Access/Turnstile need dashboard configuration or an approved external credential path.
+- **CRITICAL:** current Pages production deployment failed; `tiaans-aircon.pages.dev` returns 522.
+- **HIGH:** production D1 is intentionally empty; no data/media parity exists.
+- **HIGH:** admin cannot be exercised end to end without an Access application and valid JWT.
+- **HIGH:** importer must remain disabled until the real export/media manifest is validated.
+- **MEDIUM:** Workers-runtime integration coverage for Access, D1/R2 rollback, admin CRUD, and private attachments remains incomplete.
+- **MEDIUM:** `worker-configuration.d.ts` is stale until final R2/non-secret bindings are known.
+- **LOW:** main bundle warning, missing `/manifest.json`, and Base44 favicon remain.
 
-## Git / Deployment
+## Git / RuFlo
 
 - Remote: `https://github.com/Gerhard29046/Tiaans_Aircon.git`.
-- Local history is preserved; never force-push.
-- `gh auth status` reports invalid tokens for `GerhardVanWijk` and `Gerhard29046`. Re-authenticate as the repository owner before a normal push.
-- No Cloudflare deployment or production D1 migration/import was performed.
-- RuFlo was initialized as a seven-role hierarchical swarm. Three provider-backed agents were created but remained idle and were stopped after security policy prevented sending private repository data externally. In-session private specialist reviews covered frontend/admin, Cloudflare/security, and Base44/data/Git/QA.
+- Normal push through `4d0aef5` succeeded. Never force-push.
+- RuFlo local tasks cover data migration, Cloudflare backend, security/auth, QA, and Git/deployment. In-session specialists independently reviewed data, backend, and security/QA.
+- `.claude-flow` policy/task state is local coordination state, not application work; keep it out of application commits unless deliberately required.
 
 ## Next Actions
 
-1. User runs `npx.cmd wrangler login`; verify account ID, Pages target, existing D1/R2 resources, and R2 enablement before creation.
-2. User grants Base44 app access (or switches Base44 CLI identity); rerun read-only count probe, then replace and run safe paginated export tooling.
-3. Create/verify D1 and both R2 buckets in the correct account, add real production bindings, regenerate Worker types, and apply schema deliberately.
-4. Configure Cloudflare Access for `/admin`, `/admin/*`, `/api/admin`, and `/api/admin/*` with the authorized email.
-5. Complete the Turnstile setup wizard, wire `ContactForm` to `publicApi.submitEnquiry`, and test success plus token replay rejection.
-6. Replace unsafe import tooling; migrate media/data into an isolated target and verify counts, relationships, checksums, and private attachment denial.
-7. Add Workers-runtime integration tests and exercise admin CRUD/uploads.
-8. Remove remaining Base44 runtime only after parity; update final README, authenticate GitHub, commit, push normally, then deploy and run production QA.
+1. User enables R2 in account `72e8ade6697337b0bc2f2746b5570ff6`.
+2. User grants Base44 app access (or switches CLI identity); rerun count probe, then run two safe exports and compare digests.
+3. Create both R2 buckets, add bindings, download/validate/upload all media, and build the media-aware importer.
+4. Configure Access for admin paths and approved email `gerhard.ark.of.war@gmail.com`.
+5. Configure Turnstile widget/sitekey/Pages secret; verify a fresh success and replay rejection.
+6. Import data, compare exact counts/relationships/checksums, exercise all admin/public flows, then remove Base44 runtime.
+7. Push normally, deploy a complete production cutover, and independently QA the live site.
 
 ## Verification Commands
 
@@ -113,4 +104,4 @@ Never store passwords, tokens, API keys, private customer data, secret values, o
 
 ## Last Updated
 
-2026-08-26 — local public/admin cutover and security hardening completed; Base44 access denial and expired Cloudflare authentication verified; build/lint/tests and local Pages smoke checks passed.
+2026-08-26 - all CLIs authenticated; Pages/D1 verified; production D1 created and migrated empty; existing commits pushed; contact frontend cut over locally. Base44 permission, R2 activation, Access/Turnstile, parity, and successful production deployment remain.

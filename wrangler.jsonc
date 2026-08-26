@@ -4,15 +4,14 @@
   "pages_build_output_dir": "./dist",
   "compatibility_date": "2026-08-25",
   "compatibility_flags": ["nodejs_compat"],
-  // D1 database will be created in Cloudflare and linked here with its database_id
-  // "d1_databases": [
-  //   {
-  //     "binding": "DB",
-  //     "database_name": "tiaans-aircon",
-  //     "database_id": "YOUR_DATABASE_ID_HERE",
-  //     "migrations_dir": "migrations"
-  //   }
-  // ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tiaans-aircon",
+      "database_id": "04b9c5d5-5d4c-4f4e-8b9e-ebec03721cf0",
+      "migrations_dir": "migrations"
+    }
+  ],
   // R2 buckets will be created in Cloudflare and linked here
   // "r2_buckets": [
   //   {
@@ -25,7 +24,7 @@
   //   }
   // ],
   "vars": {
-    "ENVIRONMENT": "local"
+    "ENVIRONMENT": "production"
   },
   "observability": {
     "enabled": true

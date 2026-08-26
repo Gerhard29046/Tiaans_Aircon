@@ -3,6 +3,7 @@ import test from "node:test";
 import { mapProject, mapRow } from "../functions/_shared/db.js";
 import { formDataWithLimit, HttpError, parseLimit } from "../functions/_shared/http.js";
 import { parseEnquiry, validateImage } from "../functions/_shared/validation.js";
+import { verifyTurnstile } from "../functions/_shared/turnstile.js";
 
 test("parseLimit enforces the public cap", () => {
   assert.equal(parseLimit(new Request("https://example.test/api?limit=25"), 10), 25);
@@ -44,4 +45,43 @@ test("image validation checks both MIME and magic bytes", async () => {
   assert.equal((await validateImage(jpeg, 1024)).ext, "jpg");
   const spoofed = new File(["not an image"], "photo.jpg", { type: "image/jpeg" });
   await assert.rejects(validateImage(spoofed, 1024), HttpError);
+});
+
+test("Turnstile validation requires the configured action and hostname", async (t) => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  const request = new Request("https://tiaans-aircon.pages.dev/api/enquiries", {
+    headers: { "CF-Connecting-IP": "203.0.113.10" },
+  });
+  const env = {
+    TURNSTILE_SECRET_KEY: "test-secret",
+    TURNSTILE_ALLOWED_HOSTNAMES: "tiaans-aircon.pages.dev",
+  };
+
+  globalThis.fetch = async () => Response.json({ success: true, action: "contact_enquiry", hostname: "tiaans-aircon.pages.dev" });
+  await verifyTurnstile("valid-token", request, env);
+
+  globalThis.fetch = async () => Response.json({ success: true, action: "wrong_action", hostname: "tiaans-aircon.pages.dev" });
+  await assert.rejects(verifyTurnstile("valid-token", request, env), (error) => error instanceof HttpError && error.status === 400);
+
+  globalThis.fetch = async () => Response.json({ success: true, action: "contact_enquiry", hostname: "example.com" });
+  await assert.rejects(verifyTurnstile("valid-token", request, env), (error) => error instanceof HttpError && error.status === 400);
+});
+
+test("Turnstile validation fails closed when configuration or upstream verification fails", async (t) => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  const request = new Request("https://tiaans-aircon.pages.dev/api/enquiries");
+
+  await assert.rejects(verifyTurnstile("token", request, {}), (error) => error instanceof HttpError && error.status === 503);
+  await assert.rejects(
+    verifyTurnstile("", request, { TURNSTILE_SECRET_KEY: "test-secret" }),
+    (error) => error instanceof HttpError && error.status === 400,
+  );
+
+  globalThis.fetch = async () => { throw new Error("upstream unavailable"); };
+  await assert.rejects(
+    verifyTurnstile("token", request, { TURNSTILE_SECRET_KEY: "test-secret", TURNSTILE_ALLOWED_HOSTNAMES: "tiaans-aircon.pages.dev" }),
+    (error) => error instanceof HttpError && error.status === 502,
+  );
 });

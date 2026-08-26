@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Loader2, Upload, CheckCircle2, MessageCircle } from "lucide-react";
-import { base44 } from "@/api/base44client";
+import { publicApi } from "@/api/public";
 import { waLink } from "@/lib/brand";
+import TurnstileWidget from "./TurnstileWidget";
 
 const SERVICES = [
   "New Aircon Installation",
@@ -13,6 +14,7 @@ const SERVICES = [
   "Other",
 ];
 const TYPES = ["Home", "Business", "Vehicle"];
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY?.trim();
 
 const inputCls =
   "w-full px-4 py-3.5 rounded-2xl border border-[#0A2948]/15 bg-white text-[#0A2948] placeholder:text-[#0A2948]/35 focus:outline-none focus:ring-2 focus:ring-[#2D8CCB] focus:border-transparent";
@@ -30,25 +32,34 @@ export default function ContactForm() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
+
+  const handleTurnstileToken = useCallback((token) => setTurnstileToken(token), []);
+  const handleTurnstileError = useCallback(() => {
+    setError("The spam protection check could not load. Please refresh the page or WhatsApp Tiaan instead.");
+  }, []);
 
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
   const submit = async (e) => {
     e.preventDefault();
+    if (!TURNSTILE_SITE_KEY || !turnstileToken) {
+      setError("Please complete the spam protection check before sending your enquiry.");
+      return;
+    }
     setBusy(true);
     setError("");
     try {
-      let attachment = "";
-      if (file) {
-        const res = await base44.integrations.Core.UploadFile({ file });
-        attachment = res.file_url;
-      }
-      await base44.entities.Enquiry.create({ ...form, attachment, status: "New" });
+      await publicApi.submitEnquiry(form, file, turnstileToken);
       setDone(true);
-    } catch (err) {
+    } catch {
       setError("Something went wrong sending your enquiry. Please WhatsApp or call Tiaan instead.");
+      setTurnstileToken("");
+      setTurnstileResetKey((key) => key + 1);
+    } finally {
+      setBusy(false);
     }
-    setBusy(false);
   };
 
   if (done) {
@@ -130,11 +141,22 @@ export default function ContactForm() {
         </label>
       </div>
 
+      {TURNSTILE_SITE_KEY ? (
+        <TurnstileWidget
+          siteKey={TURNSTILE_SITE_KEY}
+          resetKey={turnstileResetKey}
+          onToken={handleTurnstileToken}
+          onError={handleTurnstileError}
+        />
+      ) : (
+        <p className="text-sm font-semibold text-[#C8102E]">Enquiry verification is temporarily unavailable.</p>
+      )}
+
       {error && <p className="text-sm font-semibold text-[#C8102E]">{error}</p>}
 
       <button
         type="submit"
-        disabled={busy}
+        disabled={busy || !TURNSTILE_SITE_KEY || !turnstileToken}
         className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-9 py-4 rounded-full bg-[#2D8CCB] text-white font-bold hover:bg-[#174A7E] disabled:opacity-60 transition-colors"
       >
         {busy && <Loader2 className="w-5 h-5 animate-spin" />} Send Enquiry
