@@ -21,16 +21,17 @@ The public site explains the business's services, displays completed work and pr
 - Vite 6
 - Tailwind CSS and Radix-based UI components
 - TanStack Query
-- Base44 SDK, entities, authentication, uploads, media hosting, and Vite plugin
+- Cloudflare Pages Functions, D1, R2, Access, and Turnstile migration foundation
+- Base44 remains only for the contact flow, unmigrated live data/media, and rollback compatibility
 
-Base44 remains part of the current runtime. A staged migration to Cloudflare Pages, Pages Functions, D1, and R2 is planned, but no Base44 dependency should be removed until a verified replacement exists.
+Public content and the admin UI now target Cloudflare API facades locally. Live Cloudflare resources and Base44 data/media parity are not yet available, so remaining Base44 dependencies must not be removed yet.
 
 ## Prerequisites
 
 1. Clone the repository using the project's Git URL.
 2. Navigate to the project directory.
 3. Install dependencies: `npm install`.
-4. For the current Base44-backed application, install the Base44 CLI: `npm install -g base44@latest`.
+4. Use the repository-local CLIs through `npx.cmd` on Windows.
 
 See the [Base44 CLI docs](https://docs.base44.com/developers/references/cli/get-started/overview) if you want to run Base44 commands directly.
 
@@ -42,35 +43,21 @@ Install dependencies:
 npm install
 ```
 
-Run the current full Base44 development environment:
+Run the Vite frontend:
 
 ```bash
-base44 dev
+npm.cmd run dev
 ```
 
-`base44 dev` starts the local Base44 development backend and, when this app is configured for it, also starts the frontend dev server for you. Use the frontend URL printed by the command.
+Build and initialize the local Cloudflare simulation:
 
-For example, when the Base44 project config includes a `serveCommand`, `base44 dev` can launch the frontend too:
-
-```json5
-{
-  "site": {
-    "serveCommand": "npm run dev"
-  }
-}
+```powershell
+npm.cmd run build
+npx.cmd wrangler d1 migrations apply tiaans-aircon-local --config wrangler.local.jsonc --local
+npx.cmd wrangler pages dev dist --d1 DB --r2 PUBLIC_MEDIA --r2 PRIVATE_ATTACHMENTS
 ```
 
-In a Base44 project this lives in `base44/config.jsonc`.
-
-Run only the Vite frontend against a configured hosted Base44 backend:
-
-If you only want to work on the frontend against the hosted Base44 backend, run:
-
-```bash
-npm run dev
-```
-
-Open the local URL printed by Vite.
+The production `wrangler.jsonc` intentionally omits unverified live D1/R2 IDs. Never copy placeholder IDs into it.
 
 Other repository checks:
 
@@ -81,7 +68,7 @@ npm run typecheck
 npm run preview
 ```
 
-The M0 audit found that the production build and lint currently fail. See `MEMORY_CORE.md` before relying on these commands or attempting deployment.
+Build and lint pass. Typecheck retains the documented 105-diagnostic JavaScript baseline. See `MEMORY_CORE.md` before attempting deployment.
 
 ## Environment Variables
 
@@ -103,7 +90,7 @@ The Vite configuration also recognizes the build-time `BASE44_LEGACY_SDK_IMPORTS
 
 ## Architecture
 
-The browser loads a React SPA. Public pages query published `Project`, `Tip`, and `Review` records through Base44. The contact form creates `Enquiry` records and can upload an attachment. `/admin` uses Base44 authentication and entity APIs for content CRUD and uploads. Static and uploaded media currently include Base44-hosted URLs.
+The browser loads a React SPA. Public content pages query published records through same-origin Pages Functions. The admin UI calls protected Cloudflare APIs backed by D1 and R2. Cloudflare Access is the intended admin identity layer. The contact form and static/dynamic media still require final Base44-to-Cloudflare cutover.
 
 The current entity definitions are under the intentionally unchanged, misspelled `base44/entitites/` path. Its discovery behaviour must be verified before renaming it.
 
@@ -115,7 +102,7 @@ The current Base44 site config declares:
 - Build command: `npm run build`
 - Output directory: `dist`
 
-The target architecture is GitHub plus Cloudflare Pages, with Pages Functions, D1, and R2 where needed. Cloudflare deployment is not configured yet, and no Git repository/remote was available during the M0 audit. Do not guess a repository URL or deploy until the build is healthy and the owner confirms the destination.
+The target is GitHub plus Cloudflare Pages, Pages Functions, D1, public/private R2 buckets, Access, and Turnstile. The Git remote exists, but GitHub and Cloudflare authentication are currently blocked. Do not guess account/resource IDs or deploy before the owner confirms the authenticated targets.
 
 ## Current Base44 Publish Workflow
 
@@ -127,7 +114,7 @@ base44 dashboard open
 
 ## Project Status
 
-M0 repository inspection and the M1 source-level Base44 dependency audit are complete. Live Base44 data, permissions, users, media, and deployed behaviour still require verification. Migration implementation has not started.
+Local Cloudflare foundation and frontend/admin cutover are in progress. Live Base44 export, Cloudflare resources, Access, Turnstile, media migration, deployment, and production QA remain blocked or pending.
 
 The durable engineering state, known issues, safety constraints, and next actions are maintained in `MEMORY_CORE.md`.
 

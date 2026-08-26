@@ -48,6 +48,7 @@ ruvector.db-*
 .claude-flow/metrics/
 .claude-flow/learning/
 .claude-flow/swarm/
+.claude-flow/agents/
 .claude-flow/backups/
 
 # Private migration data (contains customer info)

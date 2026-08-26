@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { base44 } from "@/api/base44client";
+import { adminApi } from "@/api/admin";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { Field, fieldCls, Toggle, AdminButton, Card } from "@/components/admin/ui";
 
@@ -11,10 +11,10 @@ const EMPTY = {
   category: "Installation",
   location: "Bellville",
   project_date: "",
-  cover_image: "",
+  cover_image: null,
   images: [],
-  before_image: "",
-  after_image: "",
+  before_image: null,
+  after_image: null,
   show_before_after: false,
   featured: false,
   published: true,
@@ -25,16 +25,23 @@ export default function ProjectsManager({ projects, reload }) {
 
   const save = async (e) => {
     e.preventDefault();
-    const { id, ...data } = editing;
-    if (id) await base44.entities.Project.update(id, data);
-    else await base44.entities.Project.create(data);
+    const { id, cover_image, images, before_image, after_image, ...data } = editing;
+    const payload = {
+      ...data,
+      cover_media_id: cover_image?.id || null,
+      image_ids: (images || []).map((item) => item.id).filter(Boolean),
+      before_media_id: before_image?.id || null,
+      after_media_id: after_image?.id || null,
+    };
+    if (id) await adminApi.projects.update(id, payload);
+    else await adminApi.projects.create(payload);
     setEditing(null);
     reload();
   };
 
   const remove = async (p) => {
     if (!window.confirm(`Delete "${p.title}"?`)) return;
-    await base44.entities.Project.delete(p.id);
+    await adminApi.projects.remove(p.id);
     reload();
   };
 
@@ -104,7 +111,14 @@ export default function ProjectsManager({ projects, reload }) {
                 {p.category} · {p.location} · {p.published ? "Published" : "Draft"}{p.featured ? " · Featured" : ""}
               </p>
               <div className="mt-3 flex gap-2">
-                <button onClick={() => setEditing({ ...EMPTY, ...p })} className="p-2 rounded-xl bg-white/10 text-white" aria-label="Edit">
+                <button onClick={() => setEditing({
+                  ...EMPTY,
+                  ...p,
+                  cover_image: p.cover_media_id ? { id: p.cover_media_id, url: p.cover_image } : null,
+                  images: (p.image_ids || []).map((id, index) => ({ id, url: p.images?.[index] || "" })),
+                  before_image: p.before_media_id ? { id: p.before_media_id, url: p.before_image } : null,
+                  after_image: p.after_media_id ? { id: p.after_media_id, url: p.after_image } : null,
+                })} className="p-2 rounded-xl bg-white/10 text-white" aria-label="Edit">
                   <Pencil className="w-4 h-4" />
                 </button>
                 <button onClick={() => remove(p)} className="p-2 rounded-xl bg-[#C8102E]/80 text-white" aria-label="Delete">

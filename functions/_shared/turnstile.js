@@ -10,9 +10,19 @@ export async function verifyTurnstile(token, request, env) {
   body.set("response", token);
   body.set("remoteip", request.headers.get("CF-Connecting-IP") || "");
   body.set("idempotency_key", crypto.randomUUID());
-  const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body });
-  if (!response.ok) throw new HttpError(502, "verification_unavailable", "Verification is temporarily unavailable.");
-  const result = await response.json();
+  let response;
+  let result;
+  try {
+    response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body,
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!response.ok) throw new Error(`siteverify returned ${response.status}`);
+    result = await response.json();
+  } catch {
+    throw new HttpError(502, "verification_unavailable", "Verification is temporarily unavailable.");
+  }
   const allowedHosts = new Set(String(env.TURNSTILE_ALLOWED_HOSTNAMES || "").split(",").map((item) => item.trim().toLowerCase()).filter(Boolean));
   if (!result.success || result.action !== "contact_enquiry" || !allowedHosts.has(String(result.hostname || "").toLowerCase())) {
     throw new HttpError(400, "turnstile_failed", "The verification challenge was not accepted.");

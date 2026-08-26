@@ -1,0 +1,30 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tiaans-aircon-local",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-08-26",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tiaans-aircon-local",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "PUBLIC_MEDIA",
+      "bucket_name": "tiaans-aircon-public-media-local"
+    },
+    {
+      "binding": "PRIVATE_ATTACHMENTS",
+      "bucket_name": "tiaans-aircon-private-enquiries-local"
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "local"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { mapProject, mapRow } from "../functions/_shared/db.js";
-import { HttpError, parseLimit } from "../functions/_shared/http.js";
+import { formDataWithLimit, HttpError, parseLimit } from "../functions/_shared/http.js";
 import { parseEnquiry, validateImage } from "../functions/_shared/validation.js";
 
 test("parseLimit enforces the public cap", () => {
@@ -25,6 +25,18 @@ test("enquiry parser accepts current form values and rejects unknown enums", () 
   assert.equal(parseEnquiry(valid).service, "Aircon Service");
   valid.set("customer_type", "Unknown");
   assert.throws(() => parseEnquiry(valid), HttpError);
+  valid.set("customer_type", "Home");
+  valid.set("email", "not-an-email");
+  assert.throws(() => parseEnquiry(valid), HttpError);
+});
+
+test("multipart request parsing enforces the total request limit", async () => {
+  const request = new Request("https://example.test/api/enquiries", {
+    method: "POST",
+    headers: { "Content-Type": "multipart/form-data; boundary=x", "Content-Length": "10" },
+    body: "0123456789",
+  });
+  await assert.rejects(formDataWithLimit(request, 5), (error) => error instanceof HttpError && error.status === 413);
 });
 
 test("image validation checks both MIME and magic bytes", async () => {

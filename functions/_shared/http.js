@@ -48,6 +48,36 @@ export function assertSameOrigin(request) {
   }
 }
 
+export async function formDataWithLimit(request, maximumBytes) {
+  const declared = request.headers.get("Content-Length");
+  if (declared !== null) {
+    const length = Number(declared);
+    if (!Number.isFinite(length) || length < 0) throw new HttpError(400, "invalid_content_length", "The request length is invalid.");
+    if (length > maximumBytes) throw new HttpError(413, "request_too_large", "The request is too large.");
+  }
+  if (!request.body) throw new HttpError(400, "empty_request", "The request body is required.");
+  const reader = request.body.getReader();
+  const chunks = [];
+  let total = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maximumBytes) {
+      await reader.cancel();
+      throw new HttpError(413, "request_too_large", "The request is too large.");
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new Response(bytes, { headers: { "Content-Type": request.headers.get("Content-Type") || "" } }).formData();
+}
+
 export function withErrors(handler) {
   return async (context) => {
     const requestId = crypto.randomUUID();

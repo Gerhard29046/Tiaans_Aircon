@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44client";
+import { adminApi } from "@/api/admin";
 import Logo from "@/components/brand/logo";
 import ProjectsManager from "@/components/admin/ProjectsManager";
 import TipsManager from "@/components/admin/TipsManager";
@@ -12,30 +12,31 @@ const TABS = ["Enquiries", "Our Work", "Tips", "Reviews"];
 export default function Admin() {
   const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [tab, setTab] = useState("Enquiries");
   const [data, setData] = useState({ projects: [], tips: [], enquiries: [], reviews: [] });
 
   const load = async () => {
     const [projects, tips, enquiries, reviews] = await Promise.all([
-      base44.entities.Project.list("-created_date", 200),
-      base44.entities.Tip.list("-created_date", 200),
-      base44.entities.Enquiry.list("-created_date", 200),
-      base44.entities.Review.list("-created_date", 200),
+      adminApi.projects.list(),
+      adminApi.tips.list(),
+      adminApi.enquiries.list(),
+      adminApi.reviews.list(),
     ]);
     setData({ projects, tips, enquiries, reviews });
   };
 
   useEffect(() => {
     (async () => {
-      const authed = await base44.auth.isAuthenticated();
-      if (!authed) {
+      try {
+        const session = await adminApi.session();
+        setUser(session.user);
+        await load();
+      } catch (error) {
+        setLoadError(error.message || "Admin access could not be verified.");
+      } finally {
         setChecking(false);
-        return;
       }
-      const me = await base44.auth.me();
-      setUser(me);
-      await load();
-      setChecking(false);
     })();
   }, []);
 
@@ -53,9 +54,9 @@ export default function Admin() {
         <div>
           <Logo light className="mx-auto" />
           <h1 className="mt-8 font-heading font-extrabold text-3xl text-white">Admin sign in</h1>
-          <p className="mt-3 text-white/60">Sign in to manage your website content.</p>
+          <p className="mt-3 text-white/60">{loadError || "Cloudflare Access is required to manage website content."}</p>
           <button
-            onClick={() => base44.auth.redirectToLogin(window.location.pathname)}
+            onClick={() => window.location.reload()}
             className="mt-7 px-7 py-4 rounded-full bg-[#2D8CCB] text-white font-bold"
           >
             Sign in
@@ -79,7 +80,7 @@ export default function Admin() {
         <Logo light />
         <div className="flex items-center gap-3">
           <Link to="/" className="text-sm text-white/60 hover:text-white">View site</Link>
-          <button onClick={() => base44.auth.logout("/")} className="text-sm font-semibold text-[#6DD5F7]">
+          <button onClick={() => window.location.assign("/cdn-cgi/access/logout")} className="text-sm font-semibold text-[#6DD5F7]">
             Log out
           </button>
         </div>

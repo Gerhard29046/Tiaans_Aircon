@@ -1,7 +1,7 @@
 import React from "react";
 import { Phone, MessageCircle, Paperclip } from "lucide-react";
 import { format } from "date-fns";
-import { base44 } from "@/api/base44client";
+import { adminApi } from "@/api/admin";
 import { fieldCls, Card } from "@/components/admin/ui";
 
 const STATUSES = ["New", "Contacted", "Quote Sent", "Booked", "Completed", "Closed"];
@@ -13,7 +13,7 @@ const waFor = (e) =>
 
 export default function EnquiriesManager({ enquiries, reload }) {
   const update = async (id, data) => {
-    await base44.entities.Enquiry.update(id, data);
+    await adminApi.enquiries.update(id, data);
     reload();
   };
 

@@ -9,16 +9,15 @@ import AskTiaanBox from "@/components/tips/AskTiaanBox";
 
 export default function TipDetail() {
   const { slug } = useParams();
-  const { data: tips, isLoading } = useQuery({
-    queryKey: ["tips", "all"],
-    queryFn: () => publicApi.listTips({ limit: 100 }),
+  const { data: tip, isLoading } = useQuery({
+    queryKey: ["tip", slug],
+    queryFn: () => publicApi.getTip(slug),
+    retry: false,
   });
 
   if (isLoading) {
     return <div className="max-w-3xl mx-auto px-4 py-28 text-[#0A2948]/50">Loading…</div>;
   }
-
-  const tip = (tips || []).find((t) => t.slug === slug || t.id === slug);
 
   if (!tip) {
     return (

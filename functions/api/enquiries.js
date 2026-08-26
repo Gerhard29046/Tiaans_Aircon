@@ -1,4 +1,4 @@
-import { assertSameOrigin, HttpError, json, withErrors } from "../_shared/http.js";
+import { assertSameOrigin, formDataWithLimit, HttpError, json, withErrors } from "../_shared/http.js";
 import { verifyTurnstile } from "../_shared/turnstile.js";
 import { parseEnquiry, validateImage } from "../_shared/validation.js";
 
@@ -8,13 +8,14 @@ const ALLOWED_FIELDS = new Set(["name", "phone", "email", "service", "customer_t
 
 export const onRequestPost = withErrors(async ({ request, env }, requestId) => {
   assertSameOrigin(request);
-  const length = Number(request.headers.get("Content-Length") || 0);
-  if (length > MAX_REQUEST_BYTES) throw new HttpError(413, "request_too_large", "The enquiry is too large.");
   if (!request.headers.get("Content-Type")?.startsWith("multipart/form-data")) throw new HttpError(415, "unsupported_media_type", "Use multipart form data.");
 
-  const form = await request.formData();
+  const form = await formDataWithLimit(request, MAX_REQUEST_BYTES);
   for (const key of form.keys()) {
     if (!ALLOWED_FIELDS.has(key)) throw new HttpError(400, "unknown_field", `Unknown field: ${key}`);
+  }
+  for (const key of ALLOWED_FIELDS) {
+    if (form.getAll(key).length > 1) throw new HttpError(400, "duplicate_field", `Duplicate field: ${key}`);
   }
   const values = parseEnquiry(form);
   await verifyTurnstile(String(form.get("turnstile_token") || ""), request, env);

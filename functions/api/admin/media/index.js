@@ -1,11 +1,12 @@
-import { HttpError, json, withErrors } from "../../../_shared/http.js";
+import { formDataWithLimit, HttpError, json, withErrors } from "../../../_shared/http.js";
 import { validateImage } from "../../../_shared/validation.js";
 
 const MAX_FILE_BYTES = 12 * 1024 * 1024;
+const MAX_REQUEST_BYTES = 13 * 1024 * 1024;
 
 export const onRequestPost = withErrors(async ({ request, env, data }, requestId) => {
   if (!request.headers.get("Content-Type")?.startsWith("multipart/form-data")) throw new HttpError(415, "unsupported_media_type", "Use multipart form data.");
-  const form = await request.formData();
+  const form = await formDataWithLimit(request, MAX_REQUEST_BYTES);
   const file = form.get("file");
   const signature = await validateImage(file, MAX_FILE_BYTES);
   const id = crypto.randomUUID();

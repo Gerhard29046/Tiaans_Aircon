@@ -8,7 +8,9 @@ export const CUSTOMER_TYPES = new Set(["Home", "Business", "Vehicle"]);
 export const ENQUIRY_STATUSES = new Set(["New", "Contacted", "Quote Sent", "Booked", "Completed", "Closed"]);
 
 function text(form, name, maximum, required = false) {
-  const value = String(form.get(name) || "").trim();
+  const entry = form.get(name);
+  if (entry instanceof File) throw new HttpError(400, "validation_failed", "One or more fields are invalid.", { [name]: "invalid" });
+  const value = String(entry || "").trim();
   if ((required && !value) || value.length > maximum) throw new HttpError(400, "validation_failed", "One or more fields are invalid.", { [name]: "invalid" });
   return value;
 }
@@ -18,6 +20,7 @@ export function parseEnquiry(form) {
   const phone = text(form, "phone", 30, true);
   if (phone.length < 5) throw new HttpError(400, "validation_failed", "One or more fields are invalid.", { phone: "invalid" });
   const email = text(form, "email", 254);
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new HttpError(400, "validation_failed", "One or more fields are invalid.", { email: "invalid" });
   const service = text(form, "service", 160, true);
   const customerType = text(form, "customer_type", 20, true);
   if (!SERVICES.has(service) || !CUSTOMER_TYPES.has(customerType)) throw new HttpError(400, "validation_failed", "One or more fields are invalid.");

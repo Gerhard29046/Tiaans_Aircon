@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { base44 } from "@/api/base44client";
+import { adminApi } from "@/api/admin";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { Field, fieldCls, Toggle, AdminButton, Card } from "@/components/admin/ui";
 
@@ -11,7 +11,7 @@ const EMPTY = {
   excerpt: "",
   content: "",
   category: "Home Aircon",
-  cover_image: "",
+  cover_image: null,
   read_time: "3 min read",
   featured: false,
   published: true,
@@ -26,17 +26,18 @@ export default function TipsManager({ tips, reload }) {
 
   const save = async (e) => {
     e.preventDefault();
-    const { id, ...data } = editing;
+    const { id, cover_image, ...data } = editing;
     data.slug = data.slug || slugify(data.title);
-    if (id) await base44.entities.Tip.update(id, data);
-    else await base44.entities.Tip.create(data);
+    data.cover_media_id = cover_image?.id || null;
+    if (id) await adminApi.tips.update(id, data);
+    else await adminApi.tips.create(data);
     setEditing(null);
     reload();
   };
 
   const remove = async (t) => {
     if (!window.confirm(`Delete "${t.title}"?`)) return;
-    await base44.entities.Tip.delete(t.id);
+    await adminApi.tips.remove(t.id);
     reload();
   };
 
@@ -97,7 +98,11 @@ export default function TipsManager({ tips, reload }) {
               {t.category} · {t.published ? "Published" : "Draft"}{t.featured ? " · Featured" : ""}
             </p>
             <div className="mt-3 flex gap-2">
-              <button onClick={() => setEditing({ ...EMPTY, ...t })} className="p-2 rounded-xl bg-white/10 text-white" aria-label="Edit">
+              <button onClick={() => setEditing({
+                ...EMPTY,
+                ...t,
+                cover_image: t.cover_media_id ? { id: t.cover_media_id, url: t.cover_image } : null,
+              })} className="p-2 rounded-xl bg-white/10 text-white" aria-label="Edit">
                 <Pencil className="w-4 h-4" />
               </button>
               <button onClick={() => remove(t)} className="p-2 rounded-xl bg-[#C8102E]/80 text-white" aria-label="Delete">

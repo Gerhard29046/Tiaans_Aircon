@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Camera, Loader2, X } from "lucide-react";
-import { base44 } from "@/api/base44client";
+import { adminApi } from "@/api/admin";
 
 export default function ImageUpload({ label, value, onChange, multiple = false }) {
   const [busy, setBusy] = useState(false);
@@ -10,29 +10,30 @@ export default function ImageUpload({ label, value, onChange, multiple = false }
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
     setBusy(true);
-    const urls = [];
-    for (const file of files) {
-      const res = await base44.integrations.Core.UploadFile({ file });
-      urls.push(res.file_url);
+    try {
+      const media = [];
+      for (const file of files) media.push(await adminApi.uploadImage(file));
+      onChange(multiple ? [...(value || []), ...media] : media[0]);
+    } finally {
+      setBusy(false);
+      e.target.value = "";
     }
-    onChange(multiple ? [...(value || []), ...urls] : urls[0]);
-    setBusy(false);
   };
 
-  const remove = (url) => {
-    onChange(multiple ? (value || []).filter((u) => u !== url) : "");
+  const remove = (item) => {
+    onChange(multiple ? (value || []).filter((candidate) => candidate !== item) : null);
   };
 
   return (
     <div>
       <p className="text-sm font-semibold text-white/80 mb-2">{label}</p>
       <div className="flex flex-wrap gap-3">
-        {list.map((url) => (
-          <div key={url} className="relative w-24 h-24 rounded-2xl overflow-hidden bg-white/10">
-            <img src={url} alt="" className="w-full h-full object-cover" />
+        {list.map((item) => (
+          <div key={item.id || item.url || item} className="relative w-24 h-24 rounded-2xl overflow-hidden bg-white/10">
+            <img src={item.url || item} alt="" className="w-full h-full object-cover" />
             <button
               type="button"
-              onClick={() => remove(url)}
+              onClick={() => remove(item)}
               aria-label="Remove photo"
               className="absolute top-1 right-1 p-1 rounded-full bg-black/60 text-white"
             >

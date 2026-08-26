@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { base44 } from "@/api/base44client";
+import { adminApi } from "@/api/admin";
 import { Field, fieldCls, Toggle, AdminButton, Card } from "@/components/admin/ui";
 
 const EMPTY = {
@@ -19,15 +19,15 @@ export default function ReviewsManager({ reviews, reload }) {
     e.preventDefault();
     const { id, ...data } = editing;
     data.rating = Number(data.rating);
-    if (id) await base44.entities.Review.update(id, data);
-    else await base44.entities.Review.create(data);
+    if (id) await adminApi.reviews.update(id, data);
+    else await adminApi.reviews.create(data);
     setEditing(null);
     reload();
   };
 
   const remove = async (r) => {
     if (!window.confirm(`Delete review by ${r.customer_name}?`)) return;
-    await base44.entities.Review.delete(r.id);
+    await adminApi.reviews.remove(r.id);
     reload();
   };
 

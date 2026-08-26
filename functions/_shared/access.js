@@ -1,6 +1,8 @@
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import { HttpError } from "./http.js";
 
+const jwksByIssuer = new Map();
+
 function required(env, name) {
   const value = env[name]?.trim();
   if (!value) throw new HttpError(503, "auth_not_configured", "Administrator authentication is not configured.");
@@ -14,7 +16,11 @@ export async function verifyAdmin(request, env) {
   const teamDomain = required(env, "ACCESS_TEAM_DOMAIN").replace(/^https?:\/\//, "").replace(/\/$/, "");
   const audience = required(env, "ACCESS_AUD");
   const issuer = `https://${teamDomain}`;
-  const jwks = createRemoteJWKSet(new URL(`${issuer}/cdn-cgi/access/certs`));
+  let jwks = jwksByIssuer.get(issuer);
+  if (!jwks) {
+    jwks = createRemoteJWKSet(new URL(`${issuer}/cdn-cgi/access/certs`));
+    jwksByIssuer.set(issuer, jwks);
+  }
   let payload;
   try {
     ({ payload } = await jwtVerify(token, jwks, { issuer, audience, algorithms: ["RS256"] }));
