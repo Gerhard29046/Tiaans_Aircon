@@ -13,5 +13,5 @@ export const onRequestGet = withErrors(async ({ request, env, params }) => {
   headers.set("ETag", object.httpEtag);
   headers.set("Cache-Control", "public, max-age=31536000, immutable");
   headers.set("X-Content-Type-Options", "nosniff");
-  return new Response("body" in object ? object.body : null, { status: "body" in object ? 200 : 304, headers });
+  return new Response("body" in object ? object.body : null, { status: "body" in object ? 200 : 412, headers });
 });

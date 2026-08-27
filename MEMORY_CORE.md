@@ -6,7 +6,7 @@ Preserve the current Tiaan's Aircon website design, branding, wording, routes, b
 
 ## Current Milestone
 
-**M4 - Cloudflare-only production deployed; security and optional R2 setup remain. Estimated completion: 90%.**
+**M4 - Cloudflare-only production deployed; production Access, Turnstile, and R2 activation remain. Estimated completion: 90%.**
 
 The owner explicitly accepted a fresh Cloudflare data store with zero historical dynamic records. No legacy account or data export is required.
 
@@ -39,11 +39,12 @@ The owner explicitly accepted a fresh Cloudflare data store with zero historical
 
 ## Known Issues
 
-- **BLOCKED:** Access and Turnstile dashboard resources/variables/secrets are not configured.
-- **BLOCKED:** R2 activation is required for upload/attachment parity, but not for public Pages assets or text-only enquiries.
+- **BLOCKED:** Production Access does not protect `/admin*` or `/api/admin*`. A malformed JWT probe returns `503 auth_not_configured`, confirming `ACCESS_TEAM_DOMAIN` and/or `ACCESS_AUD` are absent from the production Function environment.
+- **BLOCKED:** The Pages project lists no production secrets, the deployed bundle has no `VITE_TURNSTILE_SITE_KEY`, and the contact API returns `503 turnstile_not_configured`.
+- **BLOCKED:** R2 activation is required for upload/attachment parity. Wrangler list, info, and create calls all return Cloudflare API code 10042 for the confirmed account.
 - **MEDIUM:** Workers-runtime integration coverage for real Access, D1/R2 compensation, admin CRUD, and private attachments remains incomplete.
 - **MEDIUM:** generated Worker types should be refreshed after final R2 bindings and production variables are known.
-- Build, lint, JavaScript typecheck, Cloudflare contract tests, generated binding checks, and local public-route smoke tests pass.
+- Build, lint, JavaScript typecheck, 14 Cloudflare contract tests, generated binding checks, public-route smoke tests, and responsive browser QA at 360/390/430/768/1024/1440 pass.
 
 ## Verification
 
@@ -61,4 +62,4 @@ Never place passwords, tokens, API keys, secret values, private keys, or custome
 
 ## Last Updated
 
-2026-08-26 - owner accepted a fresh empty D1; retired runtime/tooling removed; original photographs moved to Pages assets; external media fallbacks removed; production public routes/APIs and asset checksums verified.
+2026-08-27 - production configuration rechecked. R2 remains disabled, Pages has no Turnstile secret/site key, and production Access variables/path protection are absent. Added signed Access JWT and complete mocked public/private media lifecycle tests; hardened R2/D1 cleanup and conditional request handling.

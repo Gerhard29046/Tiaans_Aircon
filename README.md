@@ -7,7 +7,7 @@ Public website and Cloudflare-hosted content-management interface for Tiaan's Ai
 - React 18, React Router, Vite 6, and Tailwind CSS
 - Cloudflare Pages and Pages Functions
 - Cloudflare D1 for content, enquiries, media metadata, and audit records
-- Cloudflare R2 for future admin uploads and private enquiry attachments
+- Cloudflare R2 for admin uploads and private enquiry attachments
 - Cloudflare Access for administrator authentication
 - Cloudflare Turnstile for enquiry spam protection
 
@@ -45,6 +45,15 @@ ADMIN_EMAILS=gerhard.ark.of.war@gmail.com
 
 Store `TURNSTILE_SECRET_KEY` as a Cloudflare Pages secret. Never commit it.
 
+R2 must be enabled in the Cloudflare account before uncommenting the two `r2_buckets` bindings in `wrangler.jsonc`. The required bucket names are:
+
+```text
+tiaans-aircon-public-media
+tiaans-aircon-private-enquiries
+```
+
+Cloudflare Access must protect both `/admin*` and `/api/admin*` on the production hostname. Preview-deployment Access does not replace production path protection. The Function independently verifies the Access application JWT issuer, AUD, token type, and approved email.
+
 ## Data model
 
 The Cloudflare database intentionally starts with zero projects, tips, reviews, and enquiries. New content is created through `/admin` after Cloudflare Access is configured. The ten existing design photographs are bundled unchanged under `public/media/` and served directly by Pages.
@@ -56,6 +65,7 @@ npm.cmd run build
 npm.cmd run lint
 npm.cmd run typecheck
 npm.cmd run test:cloudflare
+npx.cmd wrangler types --check
 ```
 
 Build, lint, typecheck, and Cloudflare contract tests must pass before deployment.
@@ -70,4 +80,12 @@ Production URL: https://tiaans-aircon.pages.dev
 D1 database: tiaans-aircon
 ```
 
-Do not deploy an admin/contact cutover until Access and Turnstile are configured. R2 is optional for the initial public deployment but required for image uploads and enquiry attachments.
+Before the final admin/contact deployment, verify account state without exposing secret values:
+
+```powershell
+npx.cmd wrangler r2 bucket info tiaans-aircon-public-media
+npx.cmd wrangler r2 bucket info tiaans-aircon-private-enquiries
+npx.cmd wrangler pages secret list --project-name tiaans-aircon
+```
+
+R2 is optional for the public design assets but required for admin image uploads and enquiry attachments. Do not claim the final cutover until production Access, Turnstile, authorized admin CRUD, and real R2 lifecycle tests pass.

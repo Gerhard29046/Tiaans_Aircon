@@ -26,7 +26,15 @@ export const onRequestPost = withErrors(async ({ request, env, data }, requestId
         .bind(crypto.randomUUID(), data.admin.email, id, requestId, JSON.stringify({ fields: ["content_type", "byte_size"] }), now),
     ]);
   } catch (error) {
-    await publicMedia.delete(key);
+    try {
+      await publicMedia.delete(key);
+    } catch (cleanupError) {
+      console.error(JSON.stringify({
+        message: "failed to clean up public media after database failure",
+        requestId,
+        error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
+      }));
+    }
     throw error;
   }
   return json({ id, url: `/api/public/media/${id}` }, 201, requestId);

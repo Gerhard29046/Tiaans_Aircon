@@ -9,9 +9,10 @@ export const onRequestDelete = withErrors(async ({ env, data, params }, requestI
   if (referenced) throw new HttpError(409, "media_in_use", "Media cannot be deleted while it is referenced.");
   const row = await env.DB.prepare("SELECT object_key FROM media_objects WHERE id = ? AND bucket_kind = 'public_content'").bind(id).first();
   if (!row) throw new HttpError(404, "not_found", "Media not found.");
+  const publicMedia = requireBinding(env, "PUBLIC_MEDIA");
   await env.DB.prepare("UPDATE media_objects SET state = 'deleting', updated_at = ? WHERE id = ?").bind(new Date().toISOString(), id).run();
   try {
-    await requireBinding(env, "PUBLIC_MEDIA").delete(row.object_key);
+    await publicMedia.delete(row.object_key);
   } catch (error) {
     await env.DB.prepare("UPDATE media_objects SET state = 'delete_failed', updated_at = ? WHERE id = ?").bind(new Date().toISOString(), id).run();
     throw error;

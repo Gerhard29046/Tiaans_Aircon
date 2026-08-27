@@ -21,6 +21,13 @@ export async function verifyAdmin(request, env) {
     jwks = createRemoteJWKSet(new URL(`${issuer}/cdn-cgi/access/certs`));
     jwksByIssuer.set(issuer, jwks);
   }
+  return verifyAdminToken(token, env, jwks, issuer, audience);
+}
+
+export async function verifyAdminToken(token, env, jwks, configuredIssuer, configuredAudience) {
+  const teamDomain = required(env, "ACCESS_TEAM_DOMAIN").replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const issuer = configuredIssuer || `https://${teamDomain}`;
+  const audience = configuredAudience || required(env, "ACCESS_AUD");
   let payload;
   try {
     ({ payload } = await jwtVerify(token, jwks, { issuer, audience, algorithms: ["RS256"] }));

@@ -24,8 +24,9 @@ export const onRequestPost = withErrors(async ({ request, env }, requestId) => {
   const enquiryId = crypto.randomUUID();
   const file = form.get("attachment");
   let media = null;
+  let privateAttachments = null;
   if (file instanceof File && file.size > 0) {
-    const privateAttachments = requireBinding(env, "PRIVATE_ATTACHMENTS");
+    privateAttachments = requireBinding(env, "PRIVATE_ATTACHMENTS");
     const signature = await validateImage(file, MAX_FILE_BYTES);
     const id = crypto.randomUUID();
     media = { id, key: `enquiries/${now.slice(0, 10)}/${id}.${signature.ext}`, type: signature.type, size: file.size, name: file.name.slice(0, 255) };
@@ -46,7 +47,17 @@ export const onRequestPost = withErrors(async ({ request, env }, requestId) => {
       .bind(enquiryId, values.name, values.phone, values.email, values.service, values.customer_type, values.message, media?.id || null, now, now));
     await env.DB.batch(statements);
   } catch (error) {
-    if (media) await requireBinding(env, "PRIVATE_ATTACHMENTS").delete(media.key);
+    if (media && privateAttachments) {
+      try {
+        await privateAttachments.delete(media.key);
+      } catch (cleanupError) {
+        console.error(JSON.stringify({
+          message: "failed to clean up private attachment after database failure",
+          requestId,
+          error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
+        }));
+      }
+    }
     throw error;
   }
   return json({ id: enquiryId }, 201, requestId);
