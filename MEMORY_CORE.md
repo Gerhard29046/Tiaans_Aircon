@@ -6,7 +6,7 @@ Preserve the current Tiaan's Aircon website design, branding, wording, routes, b
 
 ## Current Milestone
 
-**M5 - Cloudflare-only production deployed; Access, R2, and the Turnstile widget are configured and verified. Only the Turnstile secret write is pending a user-approved action. Estimated completion: 98%.**
+**M6 - Cloudflare cutover complete. Access, R2, and Turnstile (site key + secret) are configured and verified in production. Estimated completion: 100%, with one deliberate QA exception documented below (no real contact enquiry was submitted to avoid reaching the business owner).**
 
 The owner explicitly accepted a fresh Cloudflare data store with zero historical dynamic records. No legacy account or data export is required.
 
@@ -28,15 +28,15 @@ The owner explicitly accepted a fresh Cloudflare data store with zero historical
 - Production URL: `https://tiaans-aircon.pages.dev`.
 - Git repository: `Gerhard29046/Tiaans_Aircon`, branch `master`.
 - R2 is enabled for the account. Buckets `tiaans-aircon-public-media` and `tiaans-aircon-private-enquiries` exist, are bound as `PUBLIC_MEDIA` and `PRIVATE_ATTACHMENTS` in `wrangler.jsonc`, have public r2.dev access disabled, and a real production put/D1-metadata/public-retrieval/cleanup round trip has been verified.
-- A managed Turnstile widget exists for `tiaans-aircon.pages.dev` (plus `localhost`/`127.0.0.1` for local dev) with action `contact_enquiry`. The public site key is deployed and confirmed present in the production JS bundle.
+- A managed Turnstile widget exists for `tiaans-aircon.pages.dev` (plus `localhost`/`127.0.0.1` for local dev) with action `contact_enquiry`. The public site key is deployed and confirmed present in the production JS bundle, and `TURNSTILE_SECRET_KEY` is stored as a Pages secret (confirmed present via `wrangler pages secret list`; value never read or printed). Production was redeployed after the secret was stored, since Pages secrets bind at deploy time, not retroactively to a running deployment.
 
 ## Remaining Production Configuration
 
-- Store the Turnstile widget secret as the Pages secret `TURNSTILE_SECRET_KEY`. This write was blocked by the local safety classifier when attempted via Wrangler in this session; a user-approved run of `wrangler pages secret put TURNSTILE_SECRET_KEY --project-name tiaans-aircon` is required to finish this. Until then the contact API fails closed with `503 turnstile_not_configured`, which was confirmed live in production.
+None outstanding. See "Known Issues" for the one documented QA exception.
 
 ## Known Issues
 
-- **PENDING USER ACTION:** `TURNSTILE_SECRET_KEY` is not yet stored as a Pages secret. The widget and public site key are already live. See README for the exact command.
+- **DELIBERATE QA EXCEPTION (not a defect):** A real, human-submitted contact enquiry through the live production Turnstile widget was intentionally not performed, at the owner's explicit request, to avoid sending a test message to the real business inbox. Everything reachable without creating a real enquiry was verified live in production instead: the secret exists, a redeploy was required and completed, and the API fails closed correctly for a missing token (`400 turnstile_required`), an empty token (`400 turnstile_required`), an invalid token verified against real Cloudflare siteverify (`400 turnstile_failed`), and a cross-origin request (`403 origin_not_allowed`). The success path (genuine widget pass → D1 row → admin visibility → replay rejection) was not exercised this session and should not be described as tested.
 - **MEDIUM:** No headless-browser tool is available in this environment. Admin CRUD, responsive layout, and JS-console QA are verified via code review, the 14 Cloudflare contract tests, and live HTTP/curl checks (Access challenge, origin checks, R2/D1 round trip, fail-closed Turnstile) rather than an interactive browser session. The user's own manual browser test already confirmed the admin dashboard renders and authenticates correctly.
 - Build, lint, JavaScript typecheck, and 14 Cloudflare contract tests pass. Production HTTP checks confirm Access challenges `/admin*` and `/api/admin*`, cross-origin writes are rejected, and public APIs only return published content.
 
@@ -56,4 +56,4 @@ Never place passwords, tokens, API keys, secret values, private keys, or custome
 
 ## Last Updated
 
-2026-08-27 - R2 activation propagated; both buckets created and bound, with a verified real upload/retrieval/cleanup round trip in production. A managed Turnstile widget was created for `contact_enquiry` and the public site key is deployed and confirmed in the production bundle. `wrangler.jsonc` and `worker-configuration.d.ts` were committed and pushed (`6414db4`) and deployed to production via `wrangler pages deploy`. The owner previously confirmed the admin dashboard opens and authenticates correctly after Access configuration. Only the `TURNSTILE_SECRET_KEY` Pages secret write remains, pending a user-approved Wrangler command.
+2026-08-27 - `TURNSTILE_SECRET_KEY` was stored as a Pages secret by the owner and confirmed present. Production was redeployed so the secret took effect (Pages secrets do not apply retroactively to an already-running deployment). Live checks confirm the contact API now calls real Cloudflare siteverify and fails closed for missing, empty, invalid, and cross-origin requests. At the owner's explicit request, no real enquiry was submitted through the live widget, to avoid sending a test message to the business owner; this is recorded as a deliberate QA exception, not a defect. Build, lint, typecheck, and all 14 Cloudflare contract tests pass.

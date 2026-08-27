@@ -2,7 +2,7 @@
 
 **Status date:** 2026-08-27
 
-**Estimated completion:** 98%
+**Estimated completion:** 100%, with one deliberate, documented QA exception (see "Remaining" below) — no defect is outstanding.
 
 ## Completed
 
@@ -23,7 +23,8 @@
 - Production deployment is live at commit `6414db4`; all public/direct routes return 200, and `/admin` and `/api/admin/*` correctly challenge anonymous requests.
 - R2 is enabled. Buckets `tiaans-aircon-public-media` and `tiaans-aircon-private-enquiries` are created, bound in `wrangler.jsonc`, have public r2.dev access disabled, and a real production object was put into R2, referenced from D1, retrieved through `/api/public/media/:id` with correct headers, then cleaned up.
 - A managed Turnstile widget was created via Wrangler for `tiaans-aircon.pages.dev` (plus local dev hosts) with action `contact_enquiry`; the public site key is deployed and confirmed present in the live production JS bundle.
-- Live fail-closed checks confirm: cross-origin enquiry submissions are rejected (403 `origin_not_allowed`), and submissions without a configured Turnstile secret are rejected (503 `turnstile_not_configured`) rather than silently accepted.
+- `TURNSTILE_SECRET_KEY` is stored as a Cloudflare Pages secret (confirmed present via `wrangler pages secret list`; the value itself was never read or printed). Production was redeployed afterward, since Pages secrets bind at deploy time rather than applying retroactively.
+- Live fail-closed checks against the real, secret-configured contact API confirm: cross-origin enquiry submissions are rejected (`403 origin_not_allowed`); a missing token is rejected (`400 turnstile_required`); an empty token is rejected (`400 turnstile_required`); an invalid token is rejected by real Cloudflare siteverify (`400 turnstile_failed`, upgraded from the earlier `503 turnstile_not_configured` once the secret was live).
 - Owner has personally confirmed in a real browser that Cloudflare Access authentication works and the admin dashboard renders correctly after login.
 
 ## Current counts
@@ -41,8 +42,7 @@ These zero D1 counts are the accepted starting state, not a failed migration.
 
 ## Remaining
 
-- Store `TURNSTILE_SECRET_KEY` as a Cloudflare Pages secret. This is the single remaining blocker for a fully working contact form. It was not completed automatically in this session because the local safety classifier blocks Wrangler commands that write secret values; run `wrangler pages secret put TURNSTILE_SECRET_KEY --project-name tiaans-aircon` and paste the widget secret from the Cloudflare Turnstile dashboard (widget `tiaans-aircon-contact`) when prompted.
-- After the secret is stored, run one real end-to-end contact form submission and confirm it appears in the admin Enquiries list, then re-test replayed/invalid tokens are still rejected.
+- **Deliberate QA exception, not a defect:** a real, human-submitted contact enquiry through the live Turnstile widget was never performed, at the owner's explicit request, to avoid a test message reaching the real business inbox. Everything short of creating a real enquiry was verified live in production: the secret exists, the required redeploy happened, and missing/empty/invalid/cross-origin requests are all correctly rejected by the real, secret-configured API. The genuine success path (widget pass → D1 row → admin visibility) and true replay-of-a-valid-token rejection were **not** exercised and must not be reported as tested. If this needs closing out later, submit one clearly-labelled test enquiry through `/contact` in a real browser, confirm it in the admin Enquiries list, then delete it via the admin UI/API.
 - No headless-browser tool was available in this session, so admin CRUD, responsive layout, and JS-console QA were verified through code review, the 14 automated contract tests, and live HTTP/curl checks rather than an interactive click-through. The owner's own manual browser test already confirmed Access + the admin dashboard render correctly.
 
 ## Safety

@@ -43,13 +43,12 @@ ACCESS_AUD=bc78063d2c78ec4016561c8d17eee2bfa9e1e5314c1aedbad667ca786244f4a1
 ADMIN_EMAILS=gerhard.ark.of.war@gmail.com
 ```
 
-Store `TURNSTILE_SECRET_KEY` as a Cloudflare Pages secret. Never commit it.
+`TURNSTILE_SECRET_KEY` is stored as a Cloudflare Pages secret (`wrangler pages secret list --project-name tiaans-aircon` confirms it exists; never print its value). Never commit it. Pages secrets bind at deploy time, so redeploy after rotating it:
 
 ```powershell
 npx.cmd wrangler pages secret put TURNSTILE_SECRET_KEY --project-name tiaans-aircon
+npx.cmd wrangler pages deploy dist --project-name tiaans-aircon --branch master
 ```
-
-Paste the widget secret for the `tiaans-aircon-contact` Turnstile widget (Cloudflare dashboard → Turnstile, or `wrangler turnstile widget get <sitekey>`) when prompted. Until this secret is stored, the contact API fails closed with `503 turnstile_not_configured`.
 
 R2 is enabled for the account. The two buckets already exist and are bound in `wrangler.jsonc`:
 
@@ -94,4 +93,8 @@ npx.cmd wrangler r2 bucket info tiaans-aircon-private-enquiries
 npx.cmd wrangler pages secret list --project-name tiaans-aircon
 ```
 
-R2 is optional for the public design assets but required for admin image uploads and enquiry attachments; both buckets are live and a real production upload/retrieval/cleanup round trip has been verified. The last item before final cutover is storing `TURNSTILE_SECRET_KEY` (see Configuration above).
+R2 is optional for the public design assets but required for admin image uploads and enquiry attachments; both buckets are live and a real production upload/retrieval/cleanup round trip has been verified.
+
+## QA exception
+
+Turnstile is fully configured (widget, site key, secret) and verified live for every case that doesn't require sending a real message: missing/empty token, an invalid token rejected by real Cloudflare siteverify, and cross-origin rejection. A real human-submitted enquiry through the live widget was deliberately not performed, to avoid a test message reaching the business owner's inbox. This is a documented QA exception, not a defect. To close it out later, submit one clearly-labelled test enquiry through `/contact` in a real browser, confirm it in the admin Enquiries list, then delete it.
