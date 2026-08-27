@@ -45,7 +45,13 @@ ADMIN_EMAILS=gerhard.ark.of.war@gmail.com
 
 Store `TURNSTILE_SECRET_KEY` as a Cloudflare Pages secret. Never commit it.
 
-R2 must be enabled in the Cloudflare account before uncommenting the two `r2_buckets` bindings in `wrangler.jsonc`. The required bucket names are:
+```powershell
+npx.cmd wrangler pages secret put TURNSTILE_SECRET_KEY --project-name tiaans-aircon
+```
+
+Paste the widget secret for the `tiaans-aircon-contact` Turnstile widget (Cloudflare dashboard → Turnstile, or `wrangler turnstile widget get <sitekey>`) when prompted. Until this secret is stored, the contact API fails closed with `503 turnstile_not_configured`.
+
+R2 is enabled for the account. The two buckets already exist and are bound in `wrangler.jsonc`:
 
 ```text
 tiaans-aircon-public-media
@@ -80,7 +86,7 @@ Production URL: https://tiaans-aircon.pages.dev
 D1 database: tiaans-aircon
 ```
 
-Before the final admin/contact deployment, verify account state without exposing secret values:
+To verify account state without exposing secret values:
 
 ```powershell
 npx.cmd wrangler r2 bucket info tiaans-aircon-public-media
@@ -88,4 +94,4 @@ npx.cmd wrangler r2 bucket info tiaans-aircon-private-enquiries
 npx.cmd wrangler pages secret list --project-name tiaans-aircon
 ```
 
-R2 is optional for the public design assets but required for admin image uploads and enquiry attachments. Do not claim the final cutover until production Access, Turnstile, authorized admin CRUD, and real R2 lifecycle tests pass.
+R2 is optional for the public design assets but required for admin image uploads and enquiry attachments; both buckets are live and a real production upload/retrieval/cleanup round trip has been verified. The last item before final cutover is storing `TURNSTILE_SECRET_KEY` (see Configuration above).

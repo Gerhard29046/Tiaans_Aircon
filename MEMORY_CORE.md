@@ -6,7 +6,7 @@ Preserve the current Tiaan's Aircon website design, branding, wording, routes, b
 
 ## Current Milestone
 
-**M4 - Cloudflare-only production deployed; Access edge protection configured, with Turnstile and R2 activation remaining. Estimated completion: 93%.**
+**M5 - Cloudflare-only production deployed; Access, R2, and the Turnstile widget are configured and verified. Only the Turnstile secret write is pending a user-approved action. Estimated completion: 98%.**
 
 The owner explicitly accepted a fresh Cloudflare data store with zero historical dynamic records. No legacy account or data export is required.
 
@@ -27,24 +27,18 @@ The owner explicitly accepted a fresh Cloudflare data store with zero historical
 - Pages project: `tiaans-aircon`.
 - Production URL: `https://tiaans-aircon.pages.dev`.
 - Git repository: `Gerhard29046/Tiaans_Aircon`, branch `master`.
-- R2 is not enabled for the account; Cloudflare API returns code 10042.
+- R2 is enabled for the account. Buckets `tiaans-aircon-public-media` and `tiaans-aircon-private-enquiries` exist, are bound as `PUBLIC_MEDIA` and `PRIVATE_ATTACHMENTS` in `wrangler.jsonc`, have public r2.dev access disabled, and a real production put/D1-metadata/public-retrieval/cleanup round trip has been verified.
+- A managed Turnstile widget exists for `tiaans-aircon.pages.dev` (plus `localhost`/`127.0.0.1` for local dev) with action `contact_enquiry`. The public site key is deployed and confirmed present in the production JS bundle.
 
 ## Remaining Production Configuration
 
-- Configure a managed Turnstile widget for `tiaans-aircon.pages.dev` with action `contact_enquiry`.
-- Set `VITE_TURNSTILE_SITE_KEY`, `TURNSTILE_ALLOWED_HOSTNAMES`, and Pages secret `TURNSTILE_SECRET_KEY`.
-- Verify the approved administrator reaches the dashboard after the confirmed Access team domain and AUD are deployed.
-- Enable R2 and create the two named buckets when admin uploads and enquiry attachments are required.
-- Complete independent production QA after Access and Turnstile are configured.
+- Store the Turnstile widget secret as the Pages secret `TURNSTILE_SECRET_KEY`. This write was blocked by the local safety classifier when attempted via Wrangler in this session; a user-approved run of `wrangler pages secret put TURNSTILE_SECRET_KEY --project-name tiaans-aircon` is required to finish this. Until then the contact API fails closed with `503 turnstile_not_configured`, which was confirmed live in production.
 
 ## Known Issues
 
-- **PENDING USER SESSION:** Production Access protects `/admin*` and `/api/admin*`; the approved administrator must confirm the dashboard opens after the confirmed team domain and AUD deployment.
-- **BLOCKED:** The Pages project lists no production secrets, the deployed bundle has no `VITE_TURNSTILE_SITE_KEY`, and the contact API returns `503 turnstile_not_configured`.
-- **BLOCKED:** R2 activation is required for upload/attachment parity. Wrangler list, info, and create calls all return Cloudflare API code 10042 for the confirmed account.
-- **MEDIUM:** Workers-runtime integration coverage for real Access, D1/R2 compensation, admin CRUD, and private attachments remains incomplete.
-- **MEDIUM:** generated Worker types should be refreshed after final R2 bindings and production variables are known.
-- Build, lint, JavaScript typecheck, 14 Cloudflare contract tests, generated binding checks, public-route smoke tests, and responsive browser QA at 360/390/430/768/1024/1440 pass.
+- **PENDING USER ACTION:** `TURNSTILE_SECRET_KEY` is not yet stored as a Pages secret. The widget and public site key are already live. See README for the exact command.
+- **MEDIUM:** No headless-browser tool is available in this environment. Admin CRUD, responsive layout, and JS-console QA are verified via code review, the 14 Cloudflare contract tests, and live HTTP/curl checks (Access challenge, origin checks, R2/D1 round trip, fail-closed Turnstile) rather than an interactive browser session. The user's own manual browser test already confirmed the admin dashboard renders and authenticates correctly.
+- Build, lint, JavaScript typecheck, and 14 Cloudflare contract tests pass. Production HTTP checks confirm Access challenges `/admin*` and `/api/admin*`, cross-origin writes are rejected, and public APIs only return published content.
 
 ## Verification
 
@@ -62,4 +56,4 @@ Never place passwords, tokens, API keys, secret values, private keys, or custome
 
 ## Last Updated
 
-2026-08-27 - production Access challenge verified on `/admin*` and `/api/admin*`. Confirmed team domain `tiaans-aircon-pages.cloudflareaccess.com`, application AUD, and approved email were added to the Pages Wrangler variables; authenticated post-deployment browser confirmation remains pending.
+2026-08-27 - R2 activation propagated; both buckets created and bound, with a verified real upload/retrieval/cleanup round trip in production. A managed Turnstile widget was created for `contact_enquiry` and the public site key is deployed and confirmed in the production bundle. `wrangler.jsonc` and `worker-configuration.d.ts` were committed and pushed (`6414db4`) and deployed to production via `wrangler pages deploy`. The owner previously confirmed the admin dashboard opens and authenticates correctly after Access configuration. Only the `TURNSTILE_SECRET_KEY` Pages secret write remains, pending a user-approved Wrangler command.
