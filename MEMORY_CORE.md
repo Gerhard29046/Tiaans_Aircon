@@ -6,7 +6,7 @@ Preserve the current Tiaan's Aircon website design, branding, wording, routes, b
 
 ## Current Milestone
 
-**M4 - Cloudflare-only production deployed; production Access, Turnstile, and R2 activation remain. Estimated completion: 90%.**
+**M4 - Cloudflare-only production deployed; Access edge protection configured, with Turnstile and R2 activation remaining. Estimated completion: 93%.**
 
 The owner explicitly accepted a fresh Cloudflare data store with zero historical dynamic records. No legacy account or data export is required.
 
@@ -33,13 +33,13 @@ The owner explicitly accepted a fresh Cloudflare data store with zero historical
 
 - Configure a managed Turnstile widget for `tiaans-aircon.pages.dev` with action `contact_enquiry`.
 - Set `VITE_TURNSTILE_SITE_KEY`, `TURNSTILE_ALLOWED_HOSTNAMES`, and Pages secret `TURNSTILE_SECRET_KEY`.
-- Configure Access for `/admin*` and `/api/admin*`, allow only `gerhard.ark.of.war@gmail.com`, then set `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, and `ADMIN_EMAILS`.
+- Verify the approved administrator reaches the dashboard after the confirmed Access team domain and AUD are deployed.
 - Enable R2 and create the two named buckets when admin uploads and enquiry attachments are required.
 - Complete independent production QA after Access and Turnstile are configured.
 
 ## Known Issues
 
-- **BLOCKED:** Production Access does not protect `/admin*` or `/api/admin*`. A malformed JWT probe returns `503 auth_not_configured`, confirming `ACCESS_TEAM_DOMAIN` and/or `ACCESS_AUD` are absent from the production Function environment.
+- **PENDING USER SESSION:** Production Access protects `/admin*` and `/api/admin*`; the approved administrator must confirm the dashboard opens after the confirmed team domain and AUD deployment.
 - **BLOCKED:** The Pages project lists no production secrets, the deployed bundle has no `VITE_TURNSTILE_SITE_KEY`, and the contact API returns `503 turnstile_not_configured`.
 - **BLOCKED:** R2 activation is required for upload/attachment parity. Wrangler list, info, and create calls all return Cloudflare API code 10042 for the confirmed account.
 - **MEDIUM:** Workers-runtime integration coverage for real Access, D1/R2 compensation, admin CRUD, and private attachments remains incomplete.
@@ -62,4 +62,4 @@ Never place passwords, tokens, API keys, secret values, private keys, or custome
 
 ## Last Updated
 
-2026-08-27 - production configuration rechecked. R2 remains disabled, Pages has no Turnstile secret/site key, and production Access variables/path protection are absent. Added signed Access JWT and complete mocked public/private media lifecycle tests; hardened R2/D1 cleanup and conditional request handling.
+2026-08-27 - production Access challenge verified on `/admin*` and `/api/admin*`. Confirmed team domain `tiaans-aircon-pages.cloudflareaccess.com`, application AUD, and approved email were added to the Pages Wrangler variables; authenticated post-deployment browser confirmation remains pending.

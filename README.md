@@ -38,8 +38,8 @@ Pages Functions require these non-secret variables in production:
 
 ```text
 TURNSTILE_ALLOWED_HOSTNAMES=tiaans-aircon.pages.dev
-ACCESS_TEAM_DOMAIN=
-ACCESS_AUD=
+ACCESS_TEAM_DOMAIN=tiaans-aircon-pages.cloudflareaccess.com
+ACCESS_AUD=bc78063d2c78ec4016561c8d17eee2bfa9e1e5314c1aedbad667ca786244f4a1
 ADMIN_EMAILS=gerhard.ark.of.war@gmail.com
 ```
 
