@@ -12,19 +12,19 @@
       "migrations_dir": "migrations"
     }
   ],
-  // R2 buckets will be created in Cloudflare and linked here
-  // "r2_buckets": [
-  //   {
-  //     "binding": "PUBLIC_MEDIA",
-  //     "bucket_name": "tiaans-aircon-public-media"
-  //   },
-  //   {
-  //     "binding": "PRIVATE_ATTACHMENTS",
-  //     "bucket_name": "tiaans-aircon-private-enquiries"
-  //   }
-  // ],
+  "r2_buckets": [
+    {
+      "binding": "PUBLIC_MEDIA",
+      "bucket_name": "tiaans-aircon-public-media"
+    },
+    {
+      "binding": "PRIVATE_ATTACHMENTS",
+      "bucket_name": "tiaans-aircon-private-enquiries"
+    }
+  ],
   "vars": {
     "ENVIRONMENT": "production",
+    "VITE_TURNSTILE_SITE_KEY": "0x4AAAAAAEdpz5O0BPYAbKIk",
     "TURNSTILE_ALLOWED_HOSTNAMES": "tiaans-aircon.pages.dev",
     "ACCESS_TEAM_DOMAIN": "tiaans-aircon-pages.cloudflareaccess.com",
     "ACCESS_AUD": "bc78063d2c78ec4016561c8d17eee2bfa9e1e5314c1aedbad667ca786244f4a1",
