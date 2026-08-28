@@ -8,5 +8,5 @@ export const IMG = {
   condenser: "/media/condenser.jpg",
   install: "/media/install.jpg",
   tools: "/media/tools.jpg",
-  portrait: "/media/portrait.jpg",
+  portrait: "/media/tiaan-image.jpg",
 };

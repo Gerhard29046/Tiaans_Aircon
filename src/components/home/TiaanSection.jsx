@@ -14,10 +14,9 @@ export default function TiaanSection() {
             <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-[#6DD5F7]/30 to-[#174A7E]/10 blur-xl" />
             <Image
               src={IMG.portrait}
-              alt="Tiaan Grimbacher, owner of Tiaan's Aircon in Bellville"
-              className="relative w-full h-[380px] sm:h-[460px] rounded-[2rem]"
+              alt="Car airconditioning regas equipment connected to a vehicle"
+              className="relative w-full aspect-[2/1] rounded-[2rem]"
               fittingType="fill"
-              focalPointY={0.35}
             />
           </div>
         </Reveal>
