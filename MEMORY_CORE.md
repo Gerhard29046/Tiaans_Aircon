@@ -32,10 +32,12 @@ The owner explicitly accepted a fresh Cloudflare data store with zero historical
 
 ## Remaining Production Configuration
 
-None outstanding. See "Known Issues" for the one documented QA exception.
+- Add `tiaansaircon.appliance@gmail.com` to the existing Cloudflare Access allow policy. The application-side allowlist is configured and tested; the edge policy update requires an Access Apps and Policies credential that the current Wrangler OAuth token does not provide.
+- See "Known Issues" for the documented contact-form QA exception.
 
 ## Known Issues
 
+- **PENDING ACCESS POLICY:** The application-side administrator allowlist includes `tiaansaircon.appliance@gmail.com`, but the current Wrangler OAuth credential does not have Cloudflare Access Apps and Policies permission (`403` from the Access organization API). The same address must still be added to the existing edge Access allow policy before it can reach `/admin`; no login or verification email was sent or triggered.
 - **DELIBERATE QA EXCEPTION (not a defect):** A real, human-submitted contact enquiry through the live production Turnstile widget was intentionally not performed, at the owner's explicit request, to avoid sending a test message to the real business inbox. Everything reachable without creating a real enquiry was verified live in production instead: the secret exists, a redeploy was required and completed, and the API fails closed correctly for a missing token (`400 turnstile_required`), an empty token (`400 turnstile_required`), an invalid token verified against real Cloudflare siteverify (`400 turnstile_failed`), and a cross-origin request (`403 origin_not_allowed`). The success path (genuine widget pass → D1 row → admin visibility → replay rejection) was not exercised this session and should not be described as tested.
 - **MEDIUM:** No headless-browser tool is available in this environment. Admin CRUD, responsive layout, and JS-console QA are verified via code review, the 14 Cloudflare contract tests, and live HTTP/curl checks (Access challenge, origin checks, R2/D1 round trip, fail-closed Turnstile) rather than an interactive browser session. The user's own manual browser test already confirmed the admin dashboard renders and authenticates correctly.
 - Build, lint, JavaScript typecheck, and 14 Cloudflare contract tests pass. Production HTTP checks confirm Access challenges `/admin*` and `/api/admin*`, cross-origin writes are rejected, and public APIs only return published content.
@@ -56,4 +58,4 @@ Never place passwords, tokens, API keys, secret values, private keys, or custome
 
 ## Last Updated
 
-2026-08-28 - Final release verification confirms the production site and public APIs return `200`, anonymous admin routes remain protected by Cloudflare Access, build/lint/typecheck and all 14 Cloudflare contract tests pass, generated Wrangler types are current, GitHub `master` is synchronized, and Base44 runtime references remain zero. The real contact-enquiry success path remains deliberately untested at the owner's request and is an accepted QA exception, not a defect.
+2026-08-28 - `tiaansaircon.appliance@gmail.com` was added to the application-side admin allowlist and covered by the signed Access JWT contract test. The existing Wrangler OAuth token cannot modify Access Apps and Policies (`403`), so the matching edge-policy membership remains a narrowly documented user action. No login or verification email was sent or triggered.

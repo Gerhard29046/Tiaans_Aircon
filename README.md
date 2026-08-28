@@ -40,7 +40,7 @@ Pages Functions require these non-secret variables in production:
 TURNSTILE_ALLOWED_HOSTNAMES=tiaans-aircon.pages.dev
 ACCESS_TEAM_DOMAIN=tiaans-aircon-pages.cloudflareaccess.com
 ACCESS_AUD=bc78063d2c78ec4016561c8d17eee2bfa9e1e5314c1aedbad667ca786244f4a1
-ADMIN_EMAILS=gerhard.ark.of.war@gmail.com
+ADMIN_EMAILS=gerhard.ark.of.war@gmail.com,tiaansaircon.appliance@gmail.com
 ```
 
 `TURNSTILE_SECRET_KEY` is stored as a Cloudflare Pages secret (`wrangler pages secret list --project-name tiaans-aircon` confirms it exists; never print its value). Never commit it. Pages secrets bind at deploy time, so redeploy after rotating it:

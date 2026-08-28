@@ -204,7 +204,7 @@ test("Access validates issuer, audience, token type, and approved email", async 
   const env = {
     ACCESS_TEAM_DOMAIN: "tiaans-aircon.cloudflareaccess.com",
     ACCESS_AUD: audience,
-    ADMIN_EMAILS: "gerhard.ark.of.war@gmail.com",
+    ADMIN_EMAILS: "gerhard.ark.of.war@gmail.com,tiaansaircon.appliance@gmail.com",
   };
   const { publicKey, privateKey } = await generateKeyPair("RS256");
   const jwk = await exportJWK(publicKey);
@@ -224,6 +224,9 @@ test("Access validates issuer, audience, token type, and approved email", async 
 
   assert.deepEqual(await verifyAdminToken(await token(), env, jwks), {
     email: "gerhard.ark.of.war@gmail.com",
+  });
+  assert.deepEqual(await verifyAdminToken(await token({ email: "tiaansaircon.appliance@gmail.com" }), env, jwks), {
+    email: "tiaansaircon.appliance@gmail.com",
   });
   await assert.rejects(
     verifyAdminToken(await token({}, { audience: "wrong-audience" }), env, jwks),
