@@ -1,6 +1,6 @@
 # Tiaan's Aircon - Cloudflare Cutover Status
 
-**Status date:** 2026-08-27
+**Status date:** 2026-08-28
 
 **Estimated completion:** 100%, with one deliberate, documented QA exception (see "Remaining" below) — no defect is outstanding.
 
@@ -20,7 +20,8 @@
 - R2/D1 failure compensation preserves the original database error and logs cleanup failures without masking it.
 - Production Access challenges anonymous `/admin*` and `/api/admin*` requests (verified live: 302 redirect to the Access login) and redirects to the confirmed team domain with the confirmed application AUD.
 - Confirmed `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, and `ADMIN_EMAILS` are versioned as non-secret Pages production variables.
-- Production deployment is live at commit `6414db4`; all public/direct routes return 200, and `/admin` and `/api/admin/*` correctly challenge anonymous requests.
+- The latest production deployment source is `0c39f25`; all public/direct routes return 200, and `/admin` and `/api/admin/*` correctly challenge anonymous requests. Subsequent repository commits are documentation-only and do not alter the deployed runtime.
+- GitHub `master` is synchronized with the final local release documentation commit; normal history was preserved and no force-push was used.
 - R2 is enabled. Buckets `tiaans-aircon-public-media` and `tiaans-aircon-private-enquiries` are created, bound in `wrangler.jsonc`, have public r2.dev access disabled, and a real production object was put into R2, referenced from D1, retrieved through `/api/public/media/:id` with correct headers, then cleaned up.
 - A managed Turnstile widget was created via Wrangler for `tiaans-aircon.pages.dev` (plus local dev hosts) with action `contact_enquiry`; the public site key is deployed and confirmed present in the live production JS bundle.
 - `TURNSTILE_SECRET_KEY` is stored as a Cloudflare Pages secret (confirmed present via `wrangler pages secret list`; the value itself was never read or printed). Production was redeployed afterward, since Pages secrets bind at deploy time rather than applying retroactively.
