@@ -19,52 +19,53 @@ export default function Hero() {
   return (
     <section className="relative overflow-hidden bg-[#0A2948]">
       <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_10%_0%,#174A7E_0%,#0A2948_55%,#071c31_100%)]" />
-      <AirflowBg opacity={0.7} />
+      <AirflowBg opacity={0.7} mobileFocus />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-14 lg:pt-24 lg:pb-24 grid lg:grid-cols-[1.05fr_0.95fr] gap-12 lg:gap-16 items-center">
+      <div className="relative max-w-7xl mx-auto min-w-0 px-5 min-[375px]:px-6 pt-12 pb-20 sm:px-6 sm:pt-16 lg:pt-24 lg:pb-24 grid lg:grid-cols-[1.05fr_0.95fr] gap-14 sm:gap-16 items-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          className="relative z-10 min-w-0"
         >
           <p className="text-[11px] sm:text-xs font-bold tracking-[0.3em] text-[#6DD5F7]">
             TIAAN'S AIRCON • BELLVILLE
           </p>
-          <h1 className="mt-5 font-heading font-extrabold text-white tracking-[-0.03em] text-[2.75rem] leading-[0.95] sm:text-6xl lg:text-7xl">
+          <h1 className="mt-5 font-heading font-extrabold text-white tracking-[-0.03em] text-[2.35rem] leading-[0.98] min-[375px]:text-[2.65rem] sm:text-6xl sm:leading-[0.95] lg:text-7xl">
             COOLING<br />DONE RIGHT.
           </h1>
-          <p className="mt-6 font-heading font-bold text-lg sm:text-2xl text-[#6DD5F7] tracking-tight">
+          <p className="mt-6 max-w-[22rem] font-heading font-bold text-[1.05rem] leading-snug sm:max-w-none sm:text-2xl text-[#6DD5F7] tracking-tight">
             Aircon Installations, Repairs, Servicing &amp; Car Aircon
           </p>
-          <p className="mt-5 max-w-xl text-white/70 text-base sm:text-lg leading-relaxed">
+          <p className="mt-4 max-w-[35ch] text-white/70 text-base leading-7 sm:mt-5 sm:max-w-xl sm:text-lg sm:leading-relaxed">
             Professional airconditioning solutions for your home, business and vehicle. Based in Bellville and serving
             Cape Town and surrounding areas.
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center gap-3">
+          <div className="mt-8 flex flex-col items-stretch gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:items-center">
             <a
               href={waLink("general")}
               target="_blank"
               rel="noopener noreferrer"
-              className="wa-pulse inline-flex items-center gap-2 px-7 py-4 rounded-full bg-[#2D8CCB] text-white font-bold hover:bg-[#6DD5F7] hover:text-[#0A2948] transition-colors"
+              className="wa-pulse inline-flex w-full items-center justify-center gap-2 px-7 py-4 rounded-full bg-[#2D8CCB] text-white font-bold hover:bg-[#6DD5F7] hover:text-[#0A2948] transition-colors sm:w-auto"
             >
               <MessageCircle className="w-5 h-5" /> WhatsApp Tiaan
             </a>
             <a
               href={telLink}
-              className="inline-flex items-center gap-2 px-7 py-4 rounded-full border border-white/25 text-white font-semibold hover:bg-white/10 transition-colors"
+              className="inline-flex w-full items-center justify-center gap-2 px-7 py-4 rounded-full border border-white/25 text-white font-semibold hover:bg-white/10 transition-colors sm:w-auto"
             >
               <Phone className="w-5 h-5" /> Call {BRAND.cell}
             </a>
-            <Link to="/services" className="px-2 py-4 text-sm font-semibold text-[#6DD5F7] hover:text-white transition-colors">
+            <Link to="/services" className="mt-2 inline-flex w-full justify-center py-3 text-sm font-semibold text-[#6DD5F7] hover:text-white transition-colors sm:mt-0 sm:w-auto sm:px-2 sm:py-4">
               Explore Our Services →
             </Link>
           </div>
 
-          <ul className="mt-12 flex flex-wrap gap-x-7 gap-y-4">
+          <ul className="mt-9 grid grid-cols-2 gap-x-4 gap-y-4 sm:mt-12 sm:flex sm:flex-wrap sm:gap-x-7">
             {INDICATORS.map(({ label, Icon }) => (
-              <li key={label} className="flex items-center gap-2 text-sm text-white/75">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10">
+              <li key={label} className="flex min-w-0 items-center gap-2 text-sm text-white/75 last:col-span-2">
+                <span className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-white/10">
                   <Icon className="w-4 h-4 text-[#6DD5F7]" />
                 </span>
                 {label}
@@ -83,7 +84,7 @@ export default function Hero() {
             <Image
               src={IMG.hero}
               alt="Car airconditioning service machine connected to a vehicle"
-              className="w-full h-[260px] sm:h-[360px] lg:h-[420px]"
+              className="w-full h-[220px] min-[390px]:h-[240px] sm:h-[360px] lg:h-[420px]"
               fittingType="fill"
               focalPointX={0.5}
               focalPointY={0.5}
