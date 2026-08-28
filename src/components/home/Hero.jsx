@@ -82,9 +82,13 @@ export default function Hero() {
           <div className="relative rounded-[2rem] overflow-hidden ring-1 ring-white/15 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
             <Image
               src={IMG.hero}
-              alt="Tiaan's Aircon technician servicing an airconditioning compressor in Bellville"
-              className="w-full h-[320px] sm:h-[440px] lg:h-[560px]"
+              alt="Car airconditioning service machine connected to a vehicle"
+              className="w-full h-[260px] sm:h-[360px] lg:h-[420px]"
               fittingType="fill"
+              focalPointX={0.5}
+              focalPointY={0.5}
+              loading="eager"
+              fetchPriority="high"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A2948]/70 via-transparent to-transparent" />
           </div>

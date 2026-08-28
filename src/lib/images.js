@@ -1,5 +1,5 @@
 export const IMG = {
-  hero: "/media/hero.jpg",
+  hero: "/media/hero-car-machine.png",
   home: "/media/home.jpg",
   car: "/media/car.jpg",
   tipVent: "/media/tip-vent.jpg",
